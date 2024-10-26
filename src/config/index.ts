@@ -107,6 +107,11 @@ export class CommunityConfig {
     return this.config.chains[`${this.primaryToken.chain_id}`];
   }
 
+  get primaryRPCUrl(): string {
+    const accountConfig = this.primaryAccountConfig;
+    return `${this.primaryNetwork.node.url}/v1/rpc/${accountConfig.paymaster_address}`;
+  }
+
   get primaryAccountConfig(): ConfigAccount {
     return this.config.accounts[
       `${this.primaryNetwork.id}:${this.config.community.primary_account_factory.address}`
