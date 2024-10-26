@@ -1,9 +1,9 @@
 {
-    "name": "@citizenwallet/sdk",
-    "version": "2.0.0",
-    "exports": "./src/index.ts",
-    "tasks": {
-        "build": "rm -rf dist && deno run -A npm:typescript/tsc",
-        "npm-publish": "npm publish --access public"
-    }
+  "name": "@citizenwallet/sdk",
+  "version": "1.0.2",
+  "exports": "./src/index.ts",
+  "tasks": {
+    "build": "rm -rf dist && deno run -A npm:typescript/tsc",
+    "npm-publish": "npm publish --access public"
+  }
 }

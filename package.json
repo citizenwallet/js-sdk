@@ -1,6 +1,6 @@
 {
     "name": "@citizenwallet/sdk",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "An sdk to easily work with citizen wallet.",
     "main": "src/index.ts",
     "types": "dist/src/index.d.ts",
