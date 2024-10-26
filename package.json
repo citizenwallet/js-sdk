@@ -1,0 +1,62 @@
+{
+    "name": "@citizenwallet/sdk",
+    "version": "2.0.0",
+    "description": "An sdk to easily work with citizen wallet.",
+    "main": "src/index.ts",
+    "types": "dist/src/index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/citizenwallet/js-sdk.git"
+    },
+    "bugs": {
+        "url": "https://github.com/citizenwallet/js-sdk/issues"
+    },
+    "scripts": {
+        "build": "rimraf dist && tsc",
+        "watch": "tsc-watch --onSuccess \"tsc\"",
+        "pretest": "cp -a node_modules/smartcontracts/cache .",
+        "test": "npx jest test/jest/*",
+        "test-jest": "npx jest test/jest/*",
+        "test-jest-watch": "npx jest --watch test/jest/*",
+        "manual-publish": "npm publish --access public"
+    },
+    "keywords": [
+        "web3",
+        "sdk",
+        "4337",
+        "erc4337",
+        "account abstraction",
+        "wallet",
+        "tokens",
+        "erc20",
+        "userop",
+        "evm",
+        "citizen wallet"
+    ],
+    "author": "Kevin Sundar Raj",
+    "license": "MIT",
+    "files": [
+        "dist"
+    ],
+    "devDependencies": {
+        "@account-abstraction/contracts": "^0.6.0",
+        "@openzeppelin/test-helpers": "^0.5.16",
+        "@types/jest": "^29.5.12",
+        "@types/node": "^20.11.16",
+        "@types/react": "^18.2.57",
+        "dotenv": "^16.4.5",
+        "jest": "^29.7.0",
+        "nock": "^13.5.1",
+        "rimraf": "^5.0.5",
+        "ts-jest": "^29.1.2",
+        "tsc-watch": "^6.0.4"
+    },
+    "dependencies": {
+        "@openzeppelin/contracts-upgradeable": "^5.0.2",
+        "ethers": "^6.11.1",
+        "fflate": "^0.8.2",
+        "react": "^18.2.0",
+        "typescript": "^5.6.3",
+        "zustand": "^4.5.2"
+    }
+}

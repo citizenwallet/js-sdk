@@ -1,0 +1,99 @@
+name: Build and Tag
+on:
+  push:
+    branches:
+      - main
+concurrency:
+  group: sdk-deploy
+  cancel-in-progress: true
+jobs:
+  build-and-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Add .env file
+        run: echo "${{ secrets.ENV }}" > .env
+
+      - name: Install packages
+        run: deno install --allow-scripts
+
+      # - name: Run Tests
+      #   run: npm test
+
+      - name: Build
+        run: deno task build
+
+      - name: Fetch tags
+        run: git fetch --tags
+
+      - name: Parse Tag
+        id: parse_tag
+        run: |
+          LAST_TAG=$(git tag | sort -V | tail -n 1)
+          if [ -z "$LAST_TAG" ]; then
+            LAST_TAG='1.0.0'
+          fi
+          IFS='.' read -ra VERSION_PARTS <<< "$LAST_TAG"
+          MAJOR=${VERSION_PARTS[0]}
+          MINOR=${VERSION_PARTS[1]}
+          PATCH=${VERSION_PARTS[2]}
+          NEW_TAG="$MAJOR.$MINOR.$((PATCH + 1))"
+          while git rev-parse "$NEW_TAG" >/dev/null 2>&1; do
+            PATCH=$((PATCH + 1))
+            NEW_TAG="$MAJOR.$MINOR.$PATCH"
+          done
+          echo ::set-output name=tag::${NEW_TAG}
+
+      - name: Update package.json version
+        run: |
+          npm version --no-git-tag-version $(echo ${{ steps.parse_tag.outputs.tag }})
+
+      - name: Update Deno.json version
+        run: |
+          deno run --allow-read --allow-write ci/bump.ts $(echo ${{ steps.parse_tag.outputs.tag }})
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "bot@citizenwallet.xyz"
+          git config --local user.name "CW GitHub Action"
+          git add package.json
+          git commit -m "Add compiled files & tag"
+          git push origin main
+
+      - name: Create tag
+        run: git tag ${{ steps.parse_tag.outputs.tag }}
+
+      - name: Push Tag
+        run: git push origin ${{ steps.parse_tag.outputs.tag }}
+
+      - name: Publish package
+        run: deno publish
+
+      - name: Publish to npm
+        run: deno task npm-publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Notify of successful deploy
+        run: |
+          curl --location '${{ secrets.DISCORD_WEBHOOK_URL }}' \
+          --header 'Content-Type: application/json' \
+          --data '{
+              "content": "new sdk update available:\n `deno add jsr:@citizenwallet/sdk@'${{ steps.parse_tag.outputs.tag }}'`\n or \n `deno add jsr:@citizenwallet/sdk@latest` \n\n https://jsr.io/@citizenwallet/sdk@${{ steps.parse_tag.outputs.tag }}"
+          }'
