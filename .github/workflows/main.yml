@@ -73,6 +73,7 @@ jobs:
           git config --local user.email "bot@citizenwallet.xyz"
           git config --local user.name "CW GitHub Action"
           git add package.json
+          git add deno.json
           git commit -m "Add compiled files & tag"
           git push origin main
 
