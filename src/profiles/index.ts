@@ -8,7 +8,10 @@ export interface Profile {
   username: string;
 }
 
-export const formatProfileImageLinks = (ipfsUrl: string, profile: Profile) => {
+export const formatProfileImageLinks = (
+  ipfsUrl: string,
+  profile: Profile
+): Profile => {
   if (profile.image_small.startsWith("ipfs://")) {
     profile.image_small = `${ipfsUrl}/${profile.image_small.replace(
       "ipfs://",
