@@ -118,4 +118,44 @@ export class CommunityConfig {
       ? `https://${this.config.community.custom_domain}`
       : `https://${this.config.community.alias}.${getEnv("BASE_DOMAIN")}`;
   }
+
+  get community(): ConfigCommunity {
+    return this.config.community;
+  }
+
+  get tokens(): { [key: string]: ConfigToken } {
+    return this.config.tokens;
+  }
+
+  get scan(): ConfigScan {
+    return this.config.scan;
+  }
+
+  get accounts(): { [key: string]: ConfigAccount } {
+    return this.config.accounts;
+  }
+
+  get cards(): { [key: string]: ConfigCard } | undefined {
+    return this.config.cards;
+  }
+
+  get chains(): { [key: string]: ConfigChain } {
+    return this.config.chains;
+  }
+
+  get ipfs(): ConfigIPFS {
+    return this.config.ipfs;
+  }
+
+  get plugins(): ConfigPlugin[] | undefined {
+    return this.config.plugins;
+  }
+
+  get configLocation(): string {
+    return this.config.config_location;
+  }
+
+  get version(): number {
+    return this.config.version;
+  }
 }
