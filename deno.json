@@ -1,24 +1,24 @@
 {
-    "name": "@citizenwallet/sdk",
-    "version": "2.0.1",
-    "exports": "./src/index.ts",
-    "license": "MIT",
-    "vendor": true,
-    "tasks": {
-        "build": "rm -rf dist && deno run -A npm:typescript/tsc",
-        "npm-publish": "npm publish --access public"
-    },
-    "publish": {
-        "include": [
-            "deno.json",
-            "package.json",
-            "LICENSE",
-            "README.md",
-            "dist",
-            "src",
-            "env.example",
-            "tsconfig.json",
-            ".gitignore"
-        ]
-    }
+  "name": "@citizenwallet/sdk",
+  "version": "2.0.2",
+  "exports": "./src/index.ts",
+  "license": "MIT",
+  "vendor": true,
+  "tasks": {
+    "build": "rm -rf dist && deno run -A npm:typescript/tsc",
+    "npm-publish": "npm publish --access public"
+  },
+  "publish": {
+    "include": [
+      "deno.json",
+      "package.json",
+      "LICENSE",
+      "README.md",
+      "dist",
+      "src",
+      "env.example",
+      "tsconfig.json",
+      ".gitignore"
+    ]
+  }
 }
