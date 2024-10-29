@@ -1,4 +1,4 @@
-import { Wallet, SigningKey, JsonRpcProvider, Contract } from "ethers";
+import { Wallet, SigningKey, JsonRpcProvider, BaseWallet, Contract } from "ethers";
 import { compress, decompress } from "../utils/gzip.ts";
 import type { CommunityConfig } from "../config/index.ts";
 import accountFactoryAbi from "../abi/AccountFactory.abi.json" with { type: "json" };
@@ -95,7 +95,7 @@ export const createVoucher = async (
     accountFactoryAbi,
     provider
   );
-  const voucherAccountAddress = await accountFactory.getFunction("getAddress")(voucherSigner.address, 0n);
+  const voucherAccountAddress = await accountFactory.getFunction("getAddress")(voucherSigner.address, BigInt(0));
 
   const voucherParams = new URLSearchParams();
   voucherParams.set("alias", communityAlias);
