@@ -1,4 +1,7 @@
-import { hexlify, toUtf8Bytes } from "ethers";
+import { hexlify, toUtf8Bytes, JsonRpcProvider, Contract } from "ethers";
+import type { CommunityConfig } from "../index.ts";
+import { downloadJsonFromIpfs } from "../ipfs/index.ts";
+import profileContractAbi from "../abi/Profile.abi.json" with { type: "json" };
 
 export interface Profile {
   account: string;
@@ -8,6 +11,10 @@ export interface Profile {
   image_small: string;
   name: string;
   username: string;
+}
+
+export interface ProfileWithTokenId extends Profile {
+  token_id: string;
 }
 
 export const formatProfileImageLinks = (
@@ -45,4 +52,64 @@ const padBytesWithSpace = (bytes: Uint8Array, length: number): Uint8Array => {
 
 export const formatUsernameToBytes32 = (username: string): string => {
   return hexlify(padBytesWithSpace(toUtf8Bytes(username.replace("@", "")), 32));
+};
+
+export const getProfileFromId = async (
+  config: CommunityConfig,
+  id: string,
+): Promise<ProfileWithTokenId | undefined> => {
+  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+
+  const contract = new Contract(
+      config.community.profile.address,
+      profileContractAbi,
+      rpc,
+  );
+
+  try {
+      const address: string = await contract.getFunction("fromIdToAddress")(
+          id,
+      );
+
+      const uri: string = await contract.getFunction("tokenURI")(address);
+
+      const profile = await downloadJsonFromIpfs<Profile>(uri);
+
+      const baseUrl = Deno.env.get("IPFS_URL");
+      if (!baseUrl) {
+          throw new Error("IPFS_URL is not set");
+      }
+
+      return {
+          ...formatProfileImageLinks(baseUrl, profile),
+          token_id: id,
+      };
+  } catch (error) {
+      console.error("Error fetching profile:", error);
+      return;
+  }
+};
+
+export const getProfileFromAddress = async (
+  config: CommunityConfig,
+  address: string,
+): Promise<ProfileWithTokenId | undefined> => {
+  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+
+  const contract = new Contract(
+      config.community.profile.address,
+      profileContractAbi,
+      rpc,
+  );
+
+  try {
+      const id: bigint = await contract.getFunction("fromAddressToId")(
+          address,
+      );
+
+      return getProfileFromId(config, id.toString());
+  } catch (error) {
+      console.error("Error fetching profile:", error);
+      return;
+  }
 };
