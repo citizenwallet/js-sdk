@@ -26,7 +26,7 @@ export interface Voucher {
  * 5. Constructs a Voucher object from the decoded parameters.
  * 6. Validates the voucher data for completeness.
  */
-export const parseVoucher = (data: string) => {
+export const parseVoucher = (data: string): { voucher: Voucher, signer: BaseWallet } => {
   const url = new URL(data.replace("#/", ""));
 
   const voucherKey = url.searchParams.get("voucher");
@@ -85,7 +85,10 @@ export const createVoucher = async (
   voucherName: string,
   voucherCreator: string,
   voucherSigner: BaseWallet
-) => {
+): Promise<{
+  voucherLink: string;
+  voucherAccountAddress: string;
+}> => {
   const provider = new JsonRpcProvider(config.primaryNetwork.node.url);
 
   const accountsConfig = config.primaryAccountConfig;
