@@ -45,7 +45,7 @@ interface JsonUserOp {
   signature: string;
 }
 
-const executeCallData = (contractAddress: string, calldata: string) =>
+const executeCallData = (contractAddress: string, calldata: string): Uint8Array =>
   ethers.getBytes(
     accountInterface.encodeFunctionData("execute", [
       contractAddress,
@@ -58,7 +58,7 @@ const transferCallData = (
   tokenAddress: string,
   receiver: string,
   amount: bigint
-) =>
+): Uint8Array =>
   ethers.getBytes(
     accountInterface.encodeFunctionData("execute", [
       tokenAddress,
@@ -67,7 +67,7 @@ const transferCallData = (
     ])
   );
 
-const mintCallData = (tokenAddress: string, receiver: string, amount: bigint) =>
+const mintCallData = (tokenAddress: string, receiver: string, amount: bigint): Uint8Array =>
   ethers.getBytes(
     accountInterface.encodeFunctionData("execute", [
       tokenAddress,
@@ -81,7 +81,7 @@ const profileCallData = (
   profileAccountAddress: string,
   username: string,
   ipfsHash: string
-) => {
+): Uint8Array => {
   return ethers.getBytes(
     accountInterface.encodeFunctionData("execute", [
       profileContractAddress,
@@ -99,7 +99,7 @@ const approveCallData = (
   tokenAddress: string,
   issuer: string,
   amount: bigint
-) =>
+): Uint8Array =>
   ethers.getBytes(
     accountInterface.encodeFunctionData("execute", [
       tokenAddress,
@@ -179,7 +179,7 @@ export class BundlerService {
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
   }
 
-  async senderAccountExists(sender: string) {
+  async senderAccountExists(sender: string): Promise<boolean> {
     const url = `${this.config.primaryNetwork.node.url}/v1/accounts/${sender}/exists`;
 
     const resp = await fetch(url);
@@ -192,7 +192,7 @@ export class BundlerService {
     senderAccountExists = false,
     accountFactoryAddress: string,
     callData: Uint8Array
-  ) {
+  ): UserOp {
     const userop = getEmptyUserOp(sender);
 
     // initCode
@@ -237,7 +237,7 @@ export class BundlerService {
     return userop;
   }
 
-  private async paymasterSignUserOp(userop: UserOp) {
+  private async paymasterSignUserOp(userop: UserOp): Promise<UserOp> {
     const method = "pm_ooSponsorUserOperation";
 
     const accountsConfig = this.config.primaryAccountConfig;
@@ -279,7 +279,7 @@ export class BundlerService {
     return signature;
   }
 
-  private async submitUserOp(userop: UserOp, extraData?: UserOpExtraData) {
+  private async submitUserOp(userop: UserOp, extraData?: UserOpExtraData): Promise<string> {
     const method = "eth_sendUserOperation";
 
     const accountsConfig = this.config.primaryAccountConfig;
