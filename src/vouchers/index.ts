@@ -66,7 +66,7 @@ export const parseVoucher = (data: string) => {
 /**
  * Creates a voucher for a given community.
  *
- * @param communityAlias - The alias of the community for which the voucher is created.
+ * @param config - The config of the community for which the voucher is created.
  * @param voucherName - The name of the voucher.
  * @param voucherCreator - The account address of creator. Since the user redeeming the voucher will only see a transaction from the voucher to them, this allows to display the original creator.
  * @param voucherSigner - A newly generated wallet that will be used to sign transactions for this voucher.
@@ -98,7 +98,7 @@ export const createVoucher = async (
   const voucherAccountAddress = await accountFactory.getFunction("getAddress")(voucherSigner.address, BigInt(0));
 
   const voucherParams = new URLSearchParams();
-  voucherParams.set("alias", communityAlias);
+  voucherParams.set("alias", config.community.alias);
   voucherParams.set("creator", voucherCreator);
   voucherParams.set("account", voucherAccountAddress);
   voucherParams.set("name", voucherName);
