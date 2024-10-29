@@ -2,6 +2,7 @@ import { hexlify, toUtf8Bytes, JsonRpcProvider, Contract } from "ethers";
 import type { CommunityConfig } from "../index.ts";
 import { downloadJsonFromIpfs } from "../ipfs/index.ts";
 import profileContractAbi from "../abi/Profile.abi.json" with { type: "json" };
+import { getEnv } from "../utils/env.ts";
 
 export interface Profile {
   account: string;
@@ -75,7 +76,7 @@ export const getProfileFromId = async (
 
       const profile = await downloadJsonFromIpfs<Profile>(uri);
 
-      const baseUrl = Deno.env.get("IPFS_URL");
+      const baseUrl = getEnv("IPFS_URL");
       if (!baseUrl) {
           throw new Error("IPFS_URL is not set");
       }
