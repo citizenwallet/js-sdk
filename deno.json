@@ -1,6 +1,6 @@
 {
   "name": "@citizenwallet/sdk",
-  "version": "2.0.15",
+  "version": "2.0.16",
   "exports": "./src/index.ts",
   "license": "MIT",
   "vendor": true,
