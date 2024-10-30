@@ -487,7 +487,7 @@ export class BundlerService {
     return hash;
   }
 
-  async awaitSuccess(txHash: string) {
+  async awaitSuccess(txHash: string): Promise<ethers.TransactionReceipt> {
     const receipt = await this.provider.waitForTransaction(txHash, 1, 12000);
     if (!receipt) {
       throw new Error("Transaction failed");
