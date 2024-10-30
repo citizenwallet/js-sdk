@@ -13,6 +13,12 @@ const accountInterface = new ethers.Interface(accountContractAbi);
 const erc20Token = new ethers.Interface(tokenContractAbi);
 const profileInterface = new ethers.Interface(profileContractAbi);
 
+const erc20TransferEventTopic = ethers.id("Transfer(address,address,uint256)");
+
+interface UserOpData {
+  [key: string]: string;
+}
+
 interface UserOpExtraData {
   description: string;
 }
@@ -279,15 +285,23 @@ export class BundlerService {
     return signature;
   }
 
-  private async submitUserOp(userop: UserOp, extraData?: UserOpExtraData): Promise<string> {
+  private async submitUserOp(
+    userop: UserOp,
+    data?: UserOpData,
+    extraData?: UserOpExtraData
+  ) {
     const method = "eth_sendUserOperation";
 
-    const accountsConfig = this.config.primaryAccountConfig;
+    const primaryAccountConfig = this.config.primaryAccountConfig;
 
-    const params: unknown[] = [
+    const params: (string | JsonUserOp | UserOpData | UserOpExtraData)[] = [
       userOpToJson(userop),
-      accountsConfig.entrypoint_address,
+      primaryAccountConfig.entrypoint_address,
     ];
+
+    if (data) {
+      params.push(data);
+    }
 
     if (extraData) {
       params.push(extraData);
@@ -307,6 +321,7 @@ export class BundlerService {
     sender: string,
     contractAddress: string,
     calldata: string,
+    data: UserOpData,
     description?: string
   ): Promise<UserOp> {
     const owner = await signer.getAddress();
@@ -326,7 +341,8 @@ export class BundlerService {
     // submit the user op
     await this.submitUserOp(
       userop,
-      description !== undefined ? { description } : undefined
+      data,
+      description !== undefined ? { description } : undefined,
     );
 
     return userop;
@@ -358,9 +374,18 @@ export class BundlerService {
 
     userop.signature = signature;
 
+    const data: UserOpData = {
+      topic: erc20TransferEventTopic,
+      address: tokenAddress,
+      from,
+      to,
+      value: formattedAmount.toString(),
+    };
+
     // submit the user op
     const hash = await this.submitUserOp(
       userop,
+      data,
       description !== undefined ? { description } : undefined
     );
 
@@ -398,9 +423,18 @@ export class BundlerService {
     }
 
     try {
+      const data: UserOpData = {
+        topic: erc20TransferEventTopic,
+        address: tokenAddress,
+        from: ethers.ZeroAddress,
+        to,
+        value: formattedAmount.toString(),
+      };
+
       // submit the user op
       const hash = await this.submitUserOp(
         userop,
+        data,
         description !== undefined ? { description } : undefined
       );
 
@@ -451,5 +485,18 @@ export class BundlerService {
     const hash = await this.submitUserOp(userop);
 
     return hash;
+  }
+
+  async awaitSuccess(txHash: string) {
+    const receipt = await this.provider.waitForTransaction(txHash, 1, 12000);
+    if (!receipt) {
+      throw new Error("Transaction failed");
+    }
+
+    if (receipt.status !== 1) {
+      throw new Error("Transaction failed");
+    }
+
+    return receipt;
   }
 }
