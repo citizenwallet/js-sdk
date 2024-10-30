@@ -5,3 +5,4 @@ export * from "./logs/index.ts";
 export * from "./bundler/index.ts";
 export * from "./ipfs/index.ts";
 export * from "./vouchers/index.ts";
+export * from "./deeplink/index.ts";
