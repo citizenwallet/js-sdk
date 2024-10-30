@@ -6,7 +6,7 @@ export const generateReceiveLink = (
   alias: string,
   amount?: string,
   description?: string
-) => {
+): string => {
   let receiveParams = `?address=${account}&alias=${alias}`;
   if (amount) {
     receiveParams += `&amount=${amount}`;
