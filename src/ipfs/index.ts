@@ -1,4 +1,4 @@
-import { getEnv } from "@/utils/env.ts";
+import { getEnv } from "../utils/env.ts";
 
 export const downloadJsonFromIpfs = async <T>(uri: string): Promise<T> => {
   let url = uri;

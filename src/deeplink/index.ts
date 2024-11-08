@@ -1,4 +1,4 @@
-import { compress } from "@/utils/gzip.ts";
+import { compress } from "../utils/gzip.ts";
 
 export const generateReceiveLink = (
   baseUrl: string,

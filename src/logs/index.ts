@@ -1,4 +1,4 @@
-import type { CommunityConfig } from "@/index.ts";
+import type { CommunityConfig } from "../index.ts";
 import { keccak256, toUtf8Bytes } from "ethers";
 
 export interface Log<E = unknown> {
