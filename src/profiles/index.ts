@@ -58,7 +58,7 @@ export const formatUsernameToBytes32 = (username: string): string => {
 export const getProfileFromId = async (
   config: CommunityConfig,
   id: string,
-): Promise<ProfileWithTokenId | undefined> => {
+): Promise<ProfileWithTokenId | null> => {
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
 
   const contract = new Contract(
@@ -87,14 +87,14 @@ export const getProfileFromId = async (
       };
   } catch (error) {
       console.error("Error fetching profile:", error);
-      return;
+      return null;
   }
 };
 
 export const getProfileFromAddress = async (
   config: CommunityConfig,
   address: string,
-): Promise<ProfileWithTokenId | undefined> => {
+): Promise<ProfileWithTokenId | null> => {
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
 
   const contract = new Contract(
@@ -111,14 +111,14 @@ export const getProfileFromAddress = async (
       return getProfileFromId(config, id.toString());
   } catch (error) {
       console.error("Error fetching profile:", error);
-      return;
+      return null;
   }
 };
 
 export const getProfileFromUsername = async (
   config: CommunityConfig,
   username: string,
-): Promise<ProfileWithTokenId | undefined> => {
+): Promise<ProfileWithTokenId | null> => {
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
 
   const contract = new Contract(
@@ -151,6 +151,6 @@ export const getProfileFromUsername = async (
     };
   } catch (error) {
     console.error("Error fetching profile:", error);
-      return;
+      return null;
   }
 };
