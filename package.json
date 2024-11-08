@@ -37,6 +37,7 @@
     "license": "MIT",
     "files": [
         "deno.json",
+        "deno.lock",
         "package.json",
         "LICENSE",
         "README.md",

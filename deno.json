@@ -14,10 +14,10 @@
   "publish": {
     "include": [
       "deno.json",
+      "deno.lock",
       "package.json",
       "LICENSE",
       "README.md",
-      "dist",
       "src",
       "env.example",
       "tsconfig.json",
