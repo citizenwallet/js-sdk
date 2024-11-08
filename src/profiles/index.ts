@@ -114,3 +114,36 @@ export const getProfileFromAddress = async (
       return;
   }
 };
+
+export const getProfileFromUsername = async (
+  config: CommunityConfig,
+  username: string,
+): Promise<Profile | undefined> => {
+  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+
+  const contract = new Contract(
+      config.community.profile.address,
+      profileContractAbi,
+      rpc,
+  );
+
+  try {
+    const formattedUsername = formatUsernameToBytes32(username);
+
+    const uri: string = await contract.getFunction("getFromUsername")(
+      formattedUsername,
+    );
+
+      const profile = await downloadJsonFromIpfs<Profile>(uri);
+
+      const baseUrl = getEnv("IPFS_URL");
+      if (!baseUrl) {
+          throw new Error("IPFS_URL is not set");
+      }
+
+    return formatProfileImageLinks(baseUrl, profile);
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+      return;
+  }
+};
