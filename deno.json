@@ -3,7 +3,6 @@
   "version": "2.0.24",
   "exports": {
     ".": "./src/index.ts",
-    "./abi": "./src/abi/*.json",
     "./bundler": "./src/bundler/index.ts",
     "./config": "./src/config/index.ts",
     "./constants/networks": "./src/constants/networks.ts",
