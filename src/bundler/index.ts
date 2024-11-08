@@ -4,9 +4,9 @@ import accountFactoryContractAbi from "../abi/AccountFactory.abi.json" with { ty
 import accountContractAbi from "../abi/Account.abi.json" with { type: "json" };
 import tokenContractAbi from "../abi/ERC20.abi.json" with { type: "json" };
 import profileContractAbi from "../abi/Profile.abi.json" with { type: "json" };
-import { formatUsernameToBytes32 } from "../profiles/index.ts";
-import { MINTER_ROLE, hasRole } from "../utils/crypto.ts";
-import type { CommunityConfig } from "../index.ts";
+import { formatUsernameToBytes32 } from "../profiles";
+import { MINTER_ROLE, hasRole } from "../utils/crypto";
+import type { CommunityConfig } from "../config";
 
 const accountFactoryInterface = new ethers.Interface(accountFactoryContractAbi);
 const accountInterface = new ethers.Interface(accountContractAbi);
@@ -51,7 +51,10 @@ interface JsonUserOp {
   signature: string;
 }
 
-const executeCallData = (contractAddress: string, calldata: string): Uint8Array =>
+const executeCallData = (
+  contractAddress: string,
+  calldata: string
+): Uint8Array =>
   ethers.getBytes(
     accountInterface.encodeFunctionData("execute", [
       contractAddress,
@@ -73,7 +76,11 @@ const transferCallData = (
     ])
   );
 
-const mintCallData = (tokenAddress: string, receiver: string, amount: bigint): Uint8Array =>
+const mintCallData = (
+  tokenAddress: string,
+  receiver: string,
+  amount: bigint
+): Uint8Array =>
   ethers.getBytes(
     accountInterface.encodeFunctionData("execute", [
       tokenAddress,
@@ -342,7 +349,7 @@ export class BundlerService {
     await this.submitUserOp(
       userop,
       data,
-      description !== undefined ? { description } : undefined,
+      description !== undefined ? { description } : undefined
     );
 
     return userop;

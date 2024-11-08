@@ -1,4 +1,4 @@
-import { getEnv } from "../utils/env.ts";
+import { getEnv } from "../utils/env";
 
 export interface ConfigCommunityTheme {
   primary: string;

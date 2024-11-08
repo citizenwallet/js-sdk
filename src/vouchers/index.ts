@@ -1,7 +1,13 @@
-import { Wallet, SigningKey, JsonRpcProvider, type BaseWallet, Contract } from "ethers";
-import { compress, decompress } from "../utils/gzip.ts";
-import type { CommunityConfig } from "../config/index.ts";
-import accountFactoryAbi from "../abi/AccountFactory.abi.json" with { type: "json" };
+import {
+  Wallet,
+  SigningKey,
+  JsonRpcProvider,
+  type BaseWallet,
+  Contract,
+} from "ethers";
+import { compress, decompress } from "../utils/gzip";
+import { type CommunityConfig } from "../config";
+import accountFactoryAbi from "../abi/AccountFactory.abi.json" with { type: "json"};
 
 export interface Voucher {
   alias: string;
@@ -26,7 +32,9 @@ export interface Voucher {
  * 5. Constructs a Voucher object from the decoded parameters.
  * 6. Validates the voucher data for completeness.
  */
-export const parseVoucher = (data: string): { voucher: Voucher, signer: BaseWallet } => {
+export const parseVoucher = (
+  data: string
+): { voucher: Voucher; signer: BaseWallet } => {
   const url = new URL(data.replace("#/", ""));
 
   const voucherKey = url.searchParams.get("voucher");
@@ -98,7 +106,10 @@ export const createVoucher = async (
     accountFactoryAbi,
     provider
   );
-  const voucherAccountAddress = await accountFactory.getFunction("getAddress")(voucherSigner.address, BigInt(0));
+  const voucherAccountAddress = await accountFactory.getFunction("getAddress")(
+    voucherSigner.address,
+    BigInt(0)
+  );
 
   const voucherParams = new URLSearchParams();
   voucherParams.set("alias", config.community.alias);

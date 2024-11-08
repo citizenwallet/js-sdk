@@ -4,7 +4,10 @@ import accessControlABI from "../abi/IAccessControlUpgradeable.abi.json" with { 
 export const MINTER_ROLE =
   "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6";
 
-export function isFunctionInABI(func: string, abi: (unknown & { type: string; name: string })[]): boolean {
+export function isFunctionInABI(
+  func: string,
+  abi: (unknown & { type: string; name: string })[]
+): boolean {
   return abi.some((item) => item.type === "function" && item.name === func);
 }
 
