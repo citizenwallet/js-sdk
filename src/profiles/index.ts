@@ -118,7 +118,7 @@ export const getProfileFromAddress = async (
 export const getProfileFromUsername = async (
   config: CommunityConfig,
   username: string,
-): Promise<Profile | undefined> => {
+): Promise<ProfileWithTokenId | undefined> => {
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
 
   const contract = new Contract(
@@ -136,12 +136,19 @@ export const getProfileFromUsername = async (
 
       const profile = await downloadJsonFromIpfs<Profile>(uri);
 
+      const id: bigint = await contract.getFunction("fromAddressToId")(
+        profile.account,
+    );
+
       const baseUrl = getEnv("IPFS_URL");
       if (!baseUrl) {
           throw new Error("IPFS_URL is not set");
       }
 
-    return formatProfileImageLinks(baseUrl, profile);
+      return {
+        ...formatProfileImageLinks(baseUrl, profile),
+        token_id: id.toString(),
+    };
   } catch (error) {
     console.error("Error fetching profile:", error);
       return;
