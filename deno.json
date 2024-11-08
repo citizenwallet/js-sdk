@@ -1,6 +1,6 @@
 {
   "name": "@citizenwallet/sdk",
-  "version": "2.0.27",
+  "version": "2.0.28",
   "exports": {
     ".": "./src/index.ts",
     "./bundler": "./src/bundler/index.ts",
