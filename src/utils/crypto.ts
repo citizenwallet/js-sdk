@@ -13,7 +13,7 @@ export async function hasRole(
   role: string,
   account: string,
   signer: ethers.Signer
-) {
+): Promise<boolean> {
   const tokenContract = new ethers.Contract(
     tokenAddress,
     accessControlABI,
