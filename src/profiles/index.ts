@@ -74,13 +74,13 @@ export const getProfileFromId = async (
 
     const profile = await downloadJsonFromIpfs<Profile>(uri);
 
-    const baseUrl = getEnv("IPFS_URL");
+    const baseUrl = getEnv("IPFS_DOMAIN");
     if (!baseUrl) {
-      throw new Error("IPFS_URL is not set");
+      throw new Error("IPFS_DOMAIN is not set");
     }
 
     return {
-      ...formatProfileImageLinks(baseUrl, profile),
+      ...formatProfileImageLinks(`https://${baseUrl}`, profile),
       token_id: id,
     };
   } catch (error) {
@@ -136,13 +136,13 @@ export const getProfileFromUsername = async (
       profile.account
     );
 
-    const baseUrl = getEnv("IPFS_URL");
+    const baseUrl = getEnv("IPFS_DOMAIN");
     if (!baseUrl) {
-      throw new Error("IPFS_URL is not set");
+      throw new Error("IPFS_DOMAIN is not set");
     }
 
     return {
-      ...formatProfileImageLinks(baseUrl, profile),
+      ...formatProfileImageLinks(`https://${baseUrl}`, profile),
       token_id: id.toString(),
     };
   } catch (error) {
