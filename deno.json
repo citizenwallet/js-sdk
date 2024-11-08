@@ -1,7 +1,21 @@
 {
   "name": "@citizenwallet/sdk",
   "version": "2.0.22",
-  "exports": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./abi": "./src/abi/*.json",
+    "./bundler": "./src/bundler/index.ts",
+    "./config": "./src/config/index.ts",
+    "./constants/networks": "./src/constants/networks.ts",
+    "./deeplink": "./src/deeplink/index.ts",
+    "./ipfs": "./src/ipfs/index.ts",
+    "./logs": "./src/logs/index.ts",
+    "./logs/signatures": "./src/logs/signatures.ts",
+    "./profiles": "./src/profiles/index.ts",
+    "./utils/crypto": "./src/utils/crypto.ts",
+    "./utils/gzip": "./src/utils/gzip.ts",
+    "./vouchers": "./src/vouchers/index.ts"
+  },
   "license": "MIT",
   "vendor": true,
   "tasks": {
