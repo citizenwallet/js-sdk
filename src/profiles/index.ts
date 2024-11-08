@@ -1,8 +1,8 @@
 import { hexlify, toUtf8Bytes, JsonRpcProvider, Contract } from "ethers";
-import type { CommunityConfig } from "../index.ts";
-import { downloadJsonFromIpfs } from "../ipfs/index.ts";
-import profileContractAbi from "../abi/Profile.abi.json" with { type: "json" };
-import { getEnv } from "../utils/env.ts";
+import type { CommunityConfig } from "@/index.ts";
+import { downloadJsonFromIpfs } from "@/ipfs/index.ts";
+import profileContractAbi from "@/abi/Profile.abi.json" with { type: "json" };
+import { getEnv } from "@/utils/env.ts";
 
 export interface Profile {
   account: string;

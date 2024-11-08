@@ -8,6 +8,9 @@
     "build": "rm -rf dist && deno run -A npm:typescript/tsc",
     "npm-publish": "npm publish --access public"
   },
+  "imports": {
+    "@/": "./src/"
+  },
   "publish": {
     "include": [
       "deno.json",

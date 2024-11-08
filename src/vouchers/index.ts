@@ -1,7 +1,7 @@
-import { Wallet, SigningKey, JsonRpcProvider, BaseWallet, Contract } from "ethers";
-import { compress, decompress } from "../utils/gzip.ts";
-import type { CommunityConfig } from "../config/index.ts";
-import accountFactoryAbi from "../abi/AccountFactory.abi.json" with { type: "json" };
+import { Wallet, SigningKey, JsonRpcProvider, type BaseWallet, Contract } from "ethers";
+import { compress, decompress } from "@/utils/gzip.ts";
+import type { CommunityConfig } from "@/config/index.ts";
+import accountFactoryAbi from "@/abi/AccountFactory.abi.json" with { type: "json" };
 
 export interface Voucher {
   alias: string;

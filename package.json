@@ -36,8 +36,15 @@
     "author": "Kevin Sundar Raj",
     "license": "MIT",
     "files": [
+        "deno.json",
+        "package.json",
+        "LICENSE",
+        "README.md",
         "dist",
-        "src"
+        "src",
+        "env.example",
+        "tsconfig.json",
+        ".gitignore"
     ],
     "devDependencies": {
         "@account-abstraction/contracts": "^0.6.0",
