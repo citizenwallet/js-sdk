@@ -16,7 +16,7 @@ export const getAccountAddress = async (
     );
 
   try {
-    const accountAddress = await contract.getFunction("getAccount")(
+    const accountAddress = await contract.getFunction("getAddress")(
       address,
       salt
     );
