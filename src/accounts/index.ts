@@ -5,7 +5,7 @@ import { JsonRpcProvider, Contract } from "ethers";
 export const getAccountAddress = async (
   config: CommunityConfig,
   address: string,
-  salt = BigInt(0)
+  salt: bigint = BigInt(0)
 ): Promise<string | null> => {
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
 
