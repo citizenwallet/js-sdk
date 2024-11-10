@@ -10,7 +10,7 @@ export const getAccountAddress = async (
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
 
     const contract = new Contract(
-      config.community.profile.address,
+      config.primaryAccountConfig.account_factory_address,
       accountFactoryAbi,
       rpc
     );
