@@ -447,7 +447,7 @@ export class BundlerService {
 
       return hash;
     } catch (e) {
-      if (!(await hasRole(tokenAddress, MINTER_ROLE, from, signer))) {
+      if (!(await hasRole(tokenAddress, MINTER_ROLE, from, this.provider))) {
         throw new Error(
           `Signer (${from}) does not have the MINTER_ROLE on token contract ${tokenAddress}`
         );

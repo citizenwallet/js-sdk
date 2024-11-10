@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, JsonRpcProvider } from "ethers";
 import accessControlABI from "../abi/IAccessControlUpgradeable.abi.json" with { type: "json" };
 
 export const MINTER_ROLE =
@@ -15,12 +15,12 @@ export async function hasRole(
   tokenAddress: string,
   role: string,
   account: string,
-  signer: ethers.Signer
+  provider: JsonRpcProvider
 ): Promise<boolean> {
   const tokenContract = new ethers.Contract(
     tokenAddress,
     accessControlABI,
-    signer
+    provider
   );
   return await tokenContract.getFunction("hasRole")(role, account);
 }
