@@ -7,3 +7,4 @@ export * from "./bundler";
 export * from "./ipfs";
 export * from "./vouchers";
 export * from "./deeplink";
+export * from "./accounts";

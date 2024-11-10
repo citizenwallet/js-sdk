@@ -1,6 +1,6 @@
 import { hexlify, toUtf8Bytes, JsonRpcProvider, Contract } from "ethers";
-import { type CommunityConfig } from "../index";
-import { downloadJsonFromIpfs } from "../ipfs/index";
+import { type CommunityConfig } from "../config";
+import { downloadJsonFromIpfs } from "../ipfs";
 import profileContractAbi from "../abi/Profile.abi.json" with { type: "json" };
 import { getEnv } from "../utils/env";
 
