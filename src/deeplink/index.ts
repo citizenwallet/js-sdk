@@ -1,25 +1,25 @@
-import { compress } from "../utils/gzip";
+// import { compress } from "../utils/gzip";
 
-export const generateLegacyReceiveLink = (
-  baseUrl: string,
-  account: string,
-  alias: string,
-  amount?: string,
-  description?: string
-): string => {
-  let receiveParams = `?address=${account}&alias=${alias}`;
-  if (amount) {
-    receiveParams += `&amount=${amount}`;
-  }
+// export const generateLegacyReceiveLink = (
+//   baseUrl: string,
+//   account: string,
+//   alias: string,
+//   amount?: string,
+//   description?: string
+// ): string => {
+//   let receiveParams = `?address=${account}&alias=${alias}`;
+//   if (amount) {
+//     receiveParams += `&amount=${amount}`;
+//   }
 
-  if (description) {
-    receiveParams += `&message=${description}`;
-  }
+//   if (description) {
+//     receiveParams += `&message=${description}`;
+//   }
 
-  const compressedParams = compress(receiveParams);
+//   const compressedParams = compress(receiveParams);
 
-  return `${baseUrl}/#/?alias=${alias}&receiveParams=${compressedParams}`;
-};
+//   return `${baseUrl}/#/?alias=${alias}&receiveParams=${compressedParams}`;
+// };
 
 export const generateReceiveLink = (
   baseUrl: string,
