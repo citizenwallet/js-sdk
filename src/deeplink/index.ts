@@ -27,7 +27,7 @@ export const generateReceiveLink = (
   alias: string,
   amount?: string,
   description?: string
-) => {
+): string => {
   let url = `${baseUrl}/?sendto=${account}@${alias}`;
   if (amount) {
     url += `&amount=${amount}`;
