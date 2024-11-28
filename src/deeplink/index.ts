@@ -34,7 +34,7 @@ export const generateReceiveLink = (
   }
 
   if (description) {
-    url += `&description=${description}`;
+    url += `&description=${encodeURIComponent(description)}`;
   }
 
   return url;
