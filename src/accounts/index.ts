@@ -58,7 +58,7 @@ export const verifyAccountOwnership = async (
   config: CommunityConfig,
   accountAddress: string,
   message: string,
-  signature: string,
+  signature: string
 ): Promise<boolean> => {
   const recoveredAddress = verifyMessage(message, signature);
   if (recoveredAddress.toLowerCase() === accountAddress.toLowerCase()) {
@@ -67,11 +67,7 @@ export const verifyAccountOwnership = async (
 
   try {
     const rpc = new JsonRpcProvider(config.primaryRPCUrl);
-  const contract = new Contract(
-    accountAddress,
-    accountAbi,
-    rpc
-  );
+    const contract = new Contract(accountAddress, accountAbi, rpc);
 
     // Check if isValidSignature is implemented by calling it
     try {
@@ -81,14 +77,13 @@ export const verifyAccountOwnership = async (
         signature
       );
 
-      if (magicValue !== "0x1626ba7e") {
-        return false;
+      if (magicValue === "0x1626ba7e") {
+        return true;
       }
     } catch (error) {
       console.warn(error);
       // Function is not implemented
       console.warn("isValidSignature is not implemented on this contract");
-      
 
       const owner = await contract.getFunction("owner")();
 
@@ -97,11 +92,7 @@ export const verifyAccountOwnership = async (
       }
     }
 
-    const safeContract = new Contract(
-      accountAddress,
-      safeAccountAbi,
-      rpc
-    );
+    const safeContract = new Contract(accountAddress, safeAccountAbi, rpc);
 
     const isOwner = await safeContract.getFunction("isOwner")(recoveredAddress);
 
@@ -111,4 +102,4 @@ export const verifyAccountOwnership = async (
   }
 
   return false;
-}
+};
