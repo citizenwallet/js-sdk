@@ -59,7 +59,7 @@ export const verifyAccountOwnership = async (
   accountAddress: string,
   message: string,
   signature: string,
-) => {
+): Promise<boolean> => {
   const recoveredAddress = verifyMessage(message, signature);
   if (recoveredAddress.toLowerCase() === accountAddress.toLowerCase()) {
     return true;
