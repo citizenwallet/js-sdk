@@ -1,5 +1,6 @@
-import { CommunityConfig } from "../index.ts";
 import { JsonRpcProvider } from "ethers";
+
+import { CommunityConfig } from "../config";
 
 export const waitForTxSuccess = async (
   config: CommunityConfig,
