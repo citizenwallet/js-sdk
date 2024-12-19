@@ -1,4 +1,5 @@
-import { getEnv } from "../utils/env";
+import dotenv from "dotenv";
+dotenv.config();
 
 export interface ConfigCommunityTheme {
   primary: string;
@@ -121,7 +122,9 @@ export class CommunityConfig {
   get communityUrl(): string {
     return this.config.community.custom_domain
       ? `https://${this.config.community.custom_domain}`
-      : `https://${this.config.community.alias}.${getEnv("BASE_DOMAIN")}`;
+      : `https://${this.config.community.alias}.${
+          dotenv.config().parsed?.BASE_DOMAIN
+        }`;
   }
 
   get community(): ConfigCommunity {

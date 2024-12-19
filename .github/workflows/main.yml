@@ -16,10 +16,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Deno
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
+      # - name: Install Deno
+      #   uses: denoland/setup-deno@v2
+      #   with:
+      #     deno-version: v2.x
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -31,13 +31,13 @@ jobs:
         run: echo "${{ secrets.ENV }}" > .env
 
       - name: Install packages
-        run: deno install --allow-scripts
+        run: npm i
 
       # - name: Run Tests
       #   run: npm test
 
       - name: Build
-        run: deno task build
+        run: npm run build
 
       - name: Fetch tags
         run: git fetch --tags
@@ -64,18 +64,25 @@ jobs:
         run: |
           npm version --no-git-tag-version $(echo ${{ steps.parse_tag.outputs.tag }})
 
-      - name: Update Deno.json version
-        run: |
-          deno run --allow-read --allow-write ci/bump.ts $(echo ${{ steps.parse_tag.outputs.tag }})
+      # - name: Update Deno.json version
+      #   run: |
+      #     deno run --allow-read --allow-write ci/bump.ts $(echo ${{ steps.parse_tag.outputs.tag }})
 
       - name: Commit changes
         run: |
           git config --local user.email "bot@citizenwallet.xyz"
           git config --local user.name "CW GitHub Action"
           git add package.json
-          git add deno.json
           git commit -m "Add compiled files & tag"
           git push origin main
+      # - name: Commit changes
+      #   run: |
+      #     git config --local user.email "bot@citizenwallet.xyz"
+      #     git config --local user.name "CW GitHub Action"
+      #     git add package.json
+      #     git add deno.json
+      #     git commit -m "Add compiled files & tag"
+      #     git push origin main
 
       - name: Create tag
         run: git tag ${{ steps.parse_tag.outputs.tag }}
@@ -83,11 +90,11 @@ jobs:
       - name: Push Tag
         run: git push origin ${{ steps.parse_tag.outputs.tag }}
 
-      - name: Publish package
-        run: deno publish --unstable-sloppy-imports
+      # - name: Publish package
+      #   run: deno publish --unstable-sloppy-imports
 
       - name: Publish to npm
-        run: deno task npm-publish
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

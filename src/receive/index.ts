@@ -5,14 +5,17 @@ export const generateReceiveLink = (
   amount?: string,
   description?: string
 ): string => {
-  let url = `${baseUrl}/?sendto=${account}@${alias}`;
+  const url = new URL(baseUrl);
+
+  url.searchParams.set("sendto", `${account}@${alias}`);
+
   if (amount) {
-    url += `&amount=${amount}`;
+    url.searchParams.set("amount", amount);
   }
 
   if (description) {
-    url += `&description=${encodeURIComponent(description)}`;
+    url.searchParams.set("description", description);
   }
 
-  return url;
+  return url.toString();
 };

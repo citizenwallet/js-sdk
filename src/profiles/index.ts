@@ -2,7 +2,8 @@ import { hexlify, toUtf8Bytes, JsonRpcProvider, Contract } from "ethers";
 import { type CommunityConfig } from "../config";
 import { downloadJsonFromIpfs } from "../ipfs";
 import profileContractAbi from "../abi/Profile.abi.json" with { type: "json" };
-import { getEnv } from "../utils/env";
+import dotenv from 'dotenv';
+dotenv.config();
 
 export interface Profile {
   account: string;
@@ -74,7 +75,7 @@ export const getProfileFromId = async (
 
     const profile = await downloadJsonFromIpfs<Profile>(uri);
 
-    const baseUrl = getEnv("IPFS_DOMAIN");
+    const baseUrl = dotenv.config().parsed?.IPFS_DOMAIN;
     if (!baseUrl) {
       throw new Error("IPFS_DOMAIN is not set");
     }
@@ -136,7 +137,7 @@ export const getProfileFromUsername = async (
       profile.account
     );
 
-    const baseUrl = getEnv("IPFS_DOMAIN");
+    const baseUrl = dotenv.config().parsed?.IPFS_DOMAIN;
     if (!baseUrl) {
       throw new Error("IPFS_DOMAIN is not set");
     }
