@@ -26,7 +26,7 @@ export interface ConfigCommunity {
   profile: ConfigCommunityProfile;
   primary_token: ConfigCommunityToken;
   primary_account_factory: ConfigCommunityToken;
-  primary_card_manager: ConfigCommunityToken;
+  primary_card_manager?: ConfigCommunityToken;
 }
 
 export interface ConfigToken {
