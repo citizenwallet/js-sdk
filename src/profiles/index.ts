@@ -1,8 +1,9 @@
 import { hexlify, toUtf8Bytes, JsonRpcProvider, Contract } from "ethers";
 import { type CommunityConfig } from "../config";
 import { downloadJsonFromIpfs } from "../ipfs";
-import profileContractAbi from "../abi/Profile.abi.json" with { type: "json" };
-import dotenv from 'dotenv';
+import profileContractAbi from "../abi/Profile.abi.json";
+import dotenv from "dotenv";
+import { addressToId, idToAddress } from "./utils";
 dotenv.config();
 
 export interface Profile {
@@ -69,7 +70,7 @@ export const getProfileFromId = async (
   );
 
   try {
-    const address: string = await contract.getFunction("fromIdToAddress")(id);
+    const address = idToAddress(BigInt(id));
 
     const uri: string = await contract.getFunction("tokenURI")(address);
 
@@ -94,22 +95,9 @@ export const getProfileFromAddress = async (
   config: CommunityConfig,
   address: string
 ): Promise<ProfileWithTokenId | null> => {
-  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+  const id = addressToId(address);
 
-  const contract = new Contract(
-    config.community.profile.address,
-    profileContractAbi,
-    rpc
-  );
-
-  try {
-    const id: bigint = await contract.getFunction("fromAddressToId")(address);
-
-    return getProfileFromId(config, id.toString());
-  } catch (error) {
-    console.error("Error fetching profile:", error);
-    return null;
-  }
+  return getProfileFromId(config, id.toString());
 };
 
 export const getProfileFromUsername = async (
@@ -133,9 +121,7 @@ export const getProfileFromUsername = async (
 
     const profile = await downloadJsonFromIpfs<Profile>(uri);
 
-    const id: bigint = await contract.getFunction("fromAddressToId")(
-      profile.account
-    );
+    const id = addressToId(profile.account);
 
     const baseUrl = dotenv.config().parsed?.IPFS_DOMAIN;
     if (!baseUrl) {

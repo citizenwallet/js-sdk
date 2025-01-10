@@ -51,8 +51,15 @@ export interface ConfigAccount {
   paymaster_type: string;
 }
 
-export interface ConfigCard {
+export interface ConfigClassicCard {
   chain_id: number;
+  address: string;
+  type: string;
+}
+
+export interface ConfigSafeCard {
+  chain_id: number;
+  instance_id: string;
   address: string;
   type: string;
 }
@@ -83,7 +90,7 @@ export interface Config {
   tokens: { [key: string]: ConfigToken };
   scan: ConfigScan;
   accounts: { [key: string]: ConfigAccount };
-  cards?: { [key: string]: ConfigCard };
+  cards?: { [key: string]: ConfigClassicCard | ConfigSafeCard };
   chains: { [key: string]: ConfigChain };
   ipfs: ConfigIPFS;
   plugins?: ConfigPlugin[];
@@ -119,6 +126,36 @@ export class CommunityConfig {
     ];
   }
 
+  get primaryCardConfig(): ConfigClassicCard | ConfigSafeCard {
+    if (!this.config.cards || !this.config.community.primary_card_manager) {
+      throw new Error("No cards found");
+    }
+
+    return this.config.cards[
+      `${this.primaryNetwork.id}:${this.config.community.primary_card_manager.address}`
+    ];
+  }
+
+  get primaryClassicCardConfig(): ConfigClassicCard {
+    if (!this.config.cards || !this.config.community.primary_card_manager) {
+      throw new Error("No cards found");
+    }
+
+    return this.config.cards[
+      `${this.primaryNetwork.id}:${this.config.community.primary_card_manager.address}`
+    ];
+  }
+
+  get primarySafeCardConfig(): ConfigSafeCard {
+    if (!this.config.cards || !this.config.community.primary_card_manager) {
+      throw new Error("No cards found");
+    }
+
+    return this.config.cards[
+      `${this.primaryNetwork.id}:${this.config.community.primary_card_manager.address}`
+    ] as ConfigSafeCard;
+  }
+
   get communityUrl(): string {
     return this.config.community.custom_domain
       ? `https://${this.config.community.custom_domain}`
@@ -143,7 +180,9 @@ export class CommunityConfig {
     return this.config.accounts;
   }
 
-  get cards(): { [key: string]: ConfigCard } | undefined {
+  get cards():
+    | { [key: string]: ConfigClassicCard | ConfigSafeCard }
+    | undefined {
     return this.config.cards;
   }
 

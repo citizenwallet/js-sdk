@@ -1,9 +1,9 @@
-import accountFactoryAbi from "../abi/AccountFactory.abi.json" with { type: "json" };
-import erc20Abi from "../abi/ERC20.abi.json" with { type: "json" };
-import accountAbi from "../abi/Account.abi.json" with { type: "json" };
-import safeAccountAbi from "../abi/Safe.abi.json" with { type: "json" };
+import accountFactoryAbi from "../abi/AccountFactory.abi.json";
+import erc20Abi from "../abi/ERC20.abi.json";
+import accountAbi from "../abi/Account.abi.json";
+import safeAccountAbi from "../abi/Safe.abi.json";
 import { type CommunityConfig } from "../config";
-import { JsonRpcProvider, Contract, verifyMessage, hashMessage} from "ethers";
+import { JsonRpcProvider, Contract, verifyMessage, hashMessage } from "ethers";
 
 export const getAccountAddress = async (
   config: CommunityConfig,
@@ -12,11 +12,11 @@ export const getAccountAddress = async (
 ): Promise<string | null> => {
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
 
-    const contract = new Contract(
-      config.primaryAccountConfig.account_factory_address,
-      accountFactoryAbi,
-      rpc
-    );
+  const contract = new Contract(
+    config.primaryAccountConfig.account_factory_address,
+    accountFactoryAbi,
+    rpc
+  );
 
   try {
     const accountAddress = await contract.getFunction("getAddress")(
@@ -25,11 +25,11 @@ export const getAccountAddress = async (
     );
 
     return accountAddress;
-    } catch (error) {
-      console.error("Error fetching account address:", error);
+  } catch (error) {
+    console.error("Error fetching account address:", error);
 
-        return null;
-    }
+    return null;
+  }
 };
 
 export const getAccountBalance = async (
@@ -37,11 +37,7 @@ export const getAccountBalance = async (
   address: string
 ): Promise<bigint | null> => {
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
-  const contract = new Contract(
-    config.primaryToken.address,
-    erc20Abi,
-    rpc
-  );
+  const contract = new Contract(config.primaryToken.address, erc20Abi, rpc);
 
   try {
     const balance = await contract.getFunction("balanceOf")(address);

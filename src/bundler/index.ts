@@ -1,9 +1,9 @@
 import { type JsonRpcProvider, ethers } from "ethers";
-import tokenEntryPointContractAbi from "../abi/TokenEntryPoint.abi.json" with { type: "json" };
-import accountFactoryContractAbi from "../abi/AccountFactory.abi.json" with { type: "json" };
-import accountContractAbi from "../abi/Account.abi.json" with { type: "json" };
-import tokenContractAbi from "../abi/ERC20.abi.json" with { type: "json" };
-import profileContractAbi from "../abi/Profile.abi.json" with { type: "json" };
+import tokenEntryPointContractAbi from "../abi/TokenEntryPoint.abi.json";
+import accountFactoryContractAbi from "../abi/AccountFactory.abi.json";
+import accountContractAbi from "../abi/Account.abi.json";
+import tokenContractAbi from "../abi/ERC20.abi.json";
+import profileContractAbi from "../abi/Profile.abi.json";
 import { formatUsernameToBytes32 } from "../profiles";
 import { MINTER_ROLE, hasRole } from "../utils/crypto";
 import type { CommunityConfig } from "../config";

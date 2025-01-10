@@ -7,7 +7,7 @@ import {
 } from "ethers";
 import { compress, decompress } from "../utils/gzip";
 import { type CommunityConfig } from "../config";
-import accountFactoryAbi from "../abi/AccountFactory.abi.json" with { type: "json"};
+import accountFactoryAbi from "../abi/AccountFactory.abi.json";
 
 export interface Voucher {
   alias: string;

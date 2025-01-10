@@ -2,8 +2,9 @@
     "name": "@citizenwallet/sdk",
     "version": "2.0.46",
     "description": "An sdk to easily work with citizen wallet.",
-    "main": "dist/src/index.js",
-    "types": "dist/src/index.d.ts",
+    "main": "./dist/src/index.js",
+    "module": "./dist/src/index.js",
+    "types": "./dist/src/index.d.ts",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/citizenwallet/js-sdk.git"
@@ -68,5 +69,12 @@
         "react": "^18.2.0",
         "typescript": "^5.6.3",
         "zustand": "^4.5.2"
+    },
+    "exports": {
+        ".": {
+            "types": "./dist/src/index.d.ts",
+            "import": "./dist/src/index.js",
+            "require": "./dist/src/index.js"
+        }
     }
 }
