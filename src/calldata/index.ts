@@ -1,10 +1,12 @@
-import { Interface, getBytes, keccak256, toUtf8Bytes } from "ethers";
+import { Interface, getBytes, id, keccak256, toUtf8Bytes } from "ethers";
 import erc20Abi from "../abi/ERC20.abi.json";
 import cardManagerModuleAbi from "../abi/CardManagerModule.abi.json";
 import { CommunityConfig } from "../config";
 
 const erc20Interface = new Interface(erc20Abi);
 const cardManagerModuleInterface = new Interface(cardManagerModuleAbi);
+
+export const tokenTransferEventTopic = id("Transfer(address,address,uint256)");
 
 export const tokenTransferCallData = (
   to: string,

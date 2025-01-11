@@ -9,6 +9,7 @@ import profileContractAbi from "../abi/Profile.abi.json";
 import { formatUsernameToBytes32 } from "../profiles";
 import { MINTER_ROLE, hasRole } from "../utils/crypto";
 import type { CommunityConfig } from "../config";
+import { tokenTransferEventTopic } from "../calldata";
 
 const accountFactoryInterface = new ethers.Interface(accountFactoryContractAbi);
 const safeAccountFactoryInterface = new ethers.Interface(
@@ -19,13 +20,11 @@ const safeInterface = new ethers.Interface(safeContractAbi);
 const erc20Token = new ethers.Interface(tokenContractAbi);
 const profileInterface = new ethers.Interface(profileContractAbi);
 
-const erc20TransferEventTopic = ethers.id("Transfer(address,address,uint256)");
-
-interface UserOpData {
+export interface UserOpData {
   [key: string]: string;
 }
 
-interface UserOpExtraData {
+export interface UserOpExtraData {
   description: string;
 }
 
@@ -418,8 +417,7 @@ export class BundlerService {
     userop.signature = signature;
 
     const data: UserOpData = {
-      topic: erc20TransferEventTopic,
-      address: tokenAddress,
+      topic: tokenTransferEventTopic,
       from,
       to,
       value: formattedAmount.toString(),
@@ -467,8 +465,7 @@ export class BundlerService {
 
     try {
       const data: UserOpData = {
-        topic: erc20TransferEventTopic,
-        address: tokenAddress,
+        topic: tokenTransferEventTopic,
         from: ethers.ZeroAddress,
         to,
         value: formattedAmount.toString(),
