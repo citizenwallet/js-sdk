@@ -6,7 +6,45 @@ import {
   toUtf8Bytes,
   keccak256,
   Wallet,
+  ZeroAddress,
 } from "ethers";
+
+export const createInstance = async (
+  signer: Wallet,
+  config: CommunityConfig
+): Promise<string | null> => {
+  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+
+  const connectedSigner = signer.connect(rpc);
+
+  const cardConfig = config.primarySafeCardConfig;
+
+  const contract = new Contract(cardConfig.address, cardManagerModuleAbi, rpc);
+
+  const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
+
+  let owner: string | null = null;
+  try {
+    owner = await contract.getFunction("instanceOwner")(instanceId);
+
+    if (owner !== ZeroAddress) {
+      return owner;
+    }
+
+    const tx = await contract.getFunction("createInstance")(instanceId);
+
+    const receipt = await tx.wait();
+    if (receipt.status === 0) {
+      return null;
+    }
+
+    owner = await contract.getFunction("instanceOwner")(instanceId);
+  } catch (error) {
+    console.error("Error creating instance:", error);
+  }
+
+  return owner;
+};
 
 export const getCardAddress = async (
   config: CommunityConfig,
@@ -40,7 +78,7 @@ export const callOnCard = async (
   hashedSerial: string,
   to: string,
   value: bigint,
-  data: string,
+  data: Uint8Array,
   customRpc?: JsonRpcProvider
 ): Promise<string | null> => {
   const rpc = customRpc ?? new JsonRpcProvider(config.primaryRPCUrl);

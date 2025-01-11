@@ -164,6 +164,10 @@ export class CommunityConfig {
         }`;
   }
 
+  get explorer(): ConfigScan {
+    return this.config.scan;
+  }
+
   get community(): ConfigCommunity {
     return this.config.community;
   }

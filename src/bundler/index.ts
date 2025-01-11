@@ -1,7 +1,9 @@
 import { type JsonRpcProvider, ethers } from "ethers";
 import tokenEntryPointContractAbi from "../abi/TokenEntryPoint.abi.json";
 import accountFactoryContractAbi from "../abi/AccountFactory.abi.json";
+import safeAccountFactoryContractAbi from "../abi/SafeAccountFactory.abi.json";
 import accountContractAbi from "../abi/Account.abi.json";
+import safeContractAbi from "../abi/Safe.abi.json";
 import tokenContractAbi from "../abi/ERC20.abi.json";
 import profileContractAbi from "../abi/Profile.abi.json";
 import { formatUsernameToBytes32 } from "../profiles";
@@ -9,7 +11,11 @@ import { MINTER_ROLE, hasRole } from "../utils/crypto";
 import type { CommunityConfig } from "../config";
 
 const accountFactoryInterface = new ethers.Interface(accountFactoryContractAbi);
+const safeAccountFactoryInterface = new ethers.Interface(
+  safeAccountFactoryContractAbi
+);
 const accountInterface = new ethers.Interface(accountContractAbi);
+const safeInterface = new ethers.Interface(safeContractAbi);
 const erc20Token = new ethers.Interface(tokenContractAbi);
 const profileInterface = new ethers.Interface(profileContractAbi);
 
@@ -53,13 +59,26 @@ interface JsonUserOp {
 
 const executeCallData = (
   contractAddress: string,
-  calldata: string
+  calldata: Uint8Array
 ): Uint8Array =>
   ethers.getBytes(
     accountInterface.encodeFunctionData("execute", [
       contractAddress,
       BigInt(0),
       calldata,
+    ])
+  );
+
+const executeSafeCallData = (
+  contractAddress: string,
+  calldata: Uint8Array
+): Uint8Array =>
+  ethers.getBytes(
+    safeInterface.encodeFunctionData("execTransactionFromModule", [
+      contractAddress,
+      BigInt(0),
+      calldata,
+      BigInt(0),
     ])
   );
 
@@ -181,15 +200,27 @@ const userOpFromJson = (userop: JsonUserOp): UserOp => {
   return newUserop;
 };
 
+export interface BundlerOptions {}
+
 export class BundlerService {
   private provider: JsonRpcProvider;
+  private accountType: "cw" | "cw-safe";
+  private options: BundlerOptions = {};
 
-  constructor(private config: CommunityConfig) {
+  constructor(private config: CommunityConfig, options?: BundlerOptions) {
     this.config = config;
 
     const rpcUrl = this.config.primaryRPCUrl;
 
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
+
+    this.accountType = this.config.primaryAccountConfig.paymaster_type as
+      | "cw"
+      | "cw-safe";
+
+    if (options) {
+      this.options = { ...this.options, ...options };
+    }
   }
 
   async senderAccountExists(sender: string): Promise<boolean> {
@@ -210,10 +241,16 @@ export class BundlerService {
 
     // initCode
     if (!senderAccountExists) {
-      const accountCreationCode = accountFactoryInterface.encodeFunctionData(
-        "createAccount",
-        [signerAddress, BigInt(0)]
-      );
+      const accountCreationCode =
+        this.accountType === "cw-safe"
+          ? safeAccountFactoryInterface.encodeFunctionData("createAccount", [
+              signerAddress,
+              BigInt(0),
+            ])
+          : accountFactoryInterface.encodeFunctionData("createAccount", [
+              signerAddress,
+              BigInt(0),
+            ]);
 
       userop.initCode = ethers.getBytes(
         ethers.concat([accountFactoryAddress, accountCreationCode])
@@ -323,19 +360,22 @@ export class BundlerService {
     return response;
   }
 
-  async submit(
+  async call(
     signer: ethers.Signer,
-    sender: string,
     contractAddress: string,
-    calldata: string,
-    data: UserOpData,
-    description?: string
-  ): Promise<UserOp> {
+    sender: string,
+    data: Uint8Array,
+    userOpData?: UserOpData,
+    extraData?: UserOpExtraData
+  ) {
     const owner = await signer.getAddress();
 
-    const executeCalldata = executeCallData(contractAddress, calldata);
+    const calldata =
+      this.accountType === "cw-safe"
+        ? executeSafeCallData(contractAddress, data)
+        : executeCallData(contractAddress, data);
 
-    let userop = await this.prepareUserOp(owner, sender, executeCalldata);
+    let userop = await this.prepareUserOp(owner, sender, calldata);
 
     // get the paymaster to sign the userop
     userop = await this.paymasterSignUserOp(userop);
@@ -346,13 +386,9 @@ export class BundlerService {
     userop.signature = signature;
 
     // submit the user op
-    await this.submitUserOp(
-      userop,
-      data,
-      description !== undefined ? { description } : undefined
-    );
+    const hash = await this.submitUserOp(userop, userOpData, extraData);
 
-    return userop;
+    return hash;
   }
 
   async sendERC20Token(
