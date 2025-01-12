@@ -31,6 +31,22 @@ export const createInstanceCallData = (
   );
 };
 
+export const updateInstanceContractsCallData = (
+  config: CommunityConfig,
+  contracts: string[]
+): Uint8Array => {
+  const cardConfig = config.primarySafeCardConfig;
+
+  const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
+
+  return getBytes(
+    cardManagerModuleInterface.encodeFunctionData("updateInstanceContracts", [
+      instanceId,
+      contracts,
+    ])
+  );
+};
+
 export const updateWhitelistCallData = (
   config: CommunityConfig,
   addresses: string[]
