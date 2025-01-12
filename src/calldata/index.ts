@@ -31,6 +31,22 @@ export const createInstanceCallData = (
   );
 };
 
+export const updateWhitelistCallData = (
+  config: CommunityConfig,
+  addresses: string[]
+): Uint8Array => {
+  const cardConfig = config.primarySafeCardConfig;
+
+  const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
+
+  return getBytes(
+    cardManagerModuleInterface.encodeFunctionData("updateWhitelist", [
+      instanceId,
+      addresses,
+    ])
+  );
+};
+
 export const callOnCardCallData = (
   config: CommunityConfig,
   hashedSerial: string,
