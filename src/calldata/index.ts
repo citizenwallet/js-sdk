@@ -15,6 +15,10 @@ export const tokenTransferCallData = (
   return getBytes(erc20Interface.encodeFunctionData("transfer", [to, value]));
 };
 
+export const tokenMintCallData = (to: string, value: bigint): Uint8Array => {
+  return getBytes(erc20Interface.encodeFunctionData("mint", [to, value]));
+};
+
 export const createInstanceCallData = (
   config: CommunityConfig,
   contracts: string[]
