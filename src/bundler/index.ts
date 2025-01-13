@@ -94,6 +94,20 @@ const transferCallData = (
     ])
   );
 
+const safeTransferCallData = (
+  tokenAddress: string,
+  receiver: string,
+  amount: bigint
+): Uint8Array =>
+  ethers.getBytes(
+    safeInterface.encodeFunctionData("execTransactionFromModule", [
+      tokenAddress,
+      BigInt(0),
+      erc20Token.encodeFunctionData("transfer", [receiver, amount]),
+      BigInt(0),
+    ])
+  );
+
 const mintCallData = (
   tokenAddress: string,
   receiver: string,
@@ -104,6 +118,47 @@ const mintCallData = (
       tokenAddress,
       BigInt(0),
       erc20Token.encodeFunctionData("mint", [receiver, amount]),
+    ])
+  );
+
+const safeMintCallData = (
+  tokenAddress: string,
+  receiver: string,
+  amount: bigint
+): Uint8Array =>
+  ethers.getBytes(
+    safeInterface.encodeFunctionData("execTransactionFromModule", [
+      tokenAddress,
+      BigInt(0),
+      erc20Token.encodeFunctionData("mint", [receiver, amount]),
+      BigInt(0),
+    ])
+  );
+
+const burnFromCallData = (
+  tokenAddress: string,
+  receiver: string,
+  amount: bigint
+): Uint8Array =>
+  ethers.getBytes(
+    accountInterface.encodeFunctionData("execute", [
+      tokenAddress,
+      BigInt(0),
+      erc20Token.encodeFunctionData("burnFrom", [receiver, amount]),
+    ])
+  );
+
+const safeBurnFromCallData = (
+  tokenAddress: string,
+  receiver: string,
+  amount: bigint
+): Uint8Array =>
+  ethers.getBytes(
+    safeInterface.encodeFunctionData("execTransactionFromModule", [
+      tokenAddress,
+      BigInt(0),
+      erc20Token.encodeFunctionData("burnFrom", [receiver, amount]),
+      BigInt(0),
     ])
   );
 
@@ -402,7 +457,10 @@ export class BundlerService {
 
     const formattedAmount = ethers.parseUnits(amount, token.decimals);
 
-    const calldata = transferCallData(tokenAddress, to, formattedAmount);
+    const calldata =
+      this.accountType === "cw-safe"
+        ? safeTransferCallData(tokenAddress, to, formattedAmount)
+        : transferCallData(tokenAddress, to, formattedAmount);
 
     const owner = await signer.getAddress();
 
@@ -445,7 +503,10 @@ export class BundlerService {
 
     const formattedAmount = ethers.parseUnits(amount, token.decimals);
 
-    const calldata = mintCallData(tokenAddress, to, formattedAmount);
+    const calldata =
+      this.accountType === "cw-safe"
+        ? safeMintCallData(tokenAddress, to, formattedAmount)
+        : mintCallData(tokenAddress, to, formattedAmount);
 
     const owner = await signer.getAddress();
 
@@ -468,6 +529,65 @@ export class BundlerService {
         topic: tokenTransferEventTopic,
         from: ethers.ZeroAddress,
         to,
+        value: formattedAmount.toString(),
+      };
+
+      // submit the user op
+      const hash = await this.submitUserOp(
+        userop,
+        data,
+        description !== undefined ? { description } : undefined
+      );
+
+      return hash;
+    } catch (e) {
+      if (!(await hasRole(tokenAddress, MINTER_ROLE, from, this.provider))) {
+        throw new Error(
+          `Signer (${from}) does not have the MINTER_ROLE on token contract ${tokenAddress}`
+        );
+      }
+      throw new Error(`Error submitting user op: ${e}`);
+    }
+  }
+
+  async burnFromERC20Token(
+    signer: ethers.Signer,
+    tokenAddress: string,
+    sender: string,
+    from: string,
+    amount: string,
+    description?: string
+  ): Promise<string> {
+    const token = this.config.primaryToken;
+
+    const formattedAmount = ethers.parseUnits(amount, token.decimals);
+
+    const calldata =
+      this.accountType === "cw-safe"
+        ? safeBurnFromCallData(tokenAddress, from, formattedAmount)
+        : burnFromCallData(tokenAddress, from, formattedAmount);
+
+    const owner = await signer.getAddress();
+
+    let userop = await this.prepareUserOp(owner, sender, calldata);
+
+    try {
+      // get the paymaster to sign the userop
+      userop = await this.paymasterSignUserOp(userop);
+
+      // sign the userop
+      const signature = await this.signUserOp(signer, userop);
+
+      userop.signature = signature;
+    } catch (e) {
+      throw new Error(`Error preparing user op: ${e}`);
+    }
+
+    try {
+      const data: UserOpData = {
+        topic: tokenTransferEventTopic,
+        from,
+        to: ethers.ZeroAddress,
         value: formattedAmount.toString(),
       };
 
