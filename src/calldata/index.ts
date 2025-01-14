@@ -88,3 +88,21 @@ export const callOnCardCallData = (
     ])
   );
 };
+
+export const addOwnerCallData = (
+  config: CommunityConfig,
+  hashedSerial: string,
+  newOwner: string
+): Uint8Array => {
+  const cardConfig = config.primarySafeCardConfig;
+
+  const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
+
+  return getBytes(
+    cardManagerModuleInterface.encodeFunctionData("addOwner", [
+      instanceId,
+      hashedSerial,
+      newOwner,
+    ])
+  );
+};
