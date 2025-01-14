@@ -99,3 +99,22 @@ export const verifyAccountOwnership = async (
 
   return false;
 };
+
+export const isSafeOwner = async (
+  config: CommunityConfig,
+  accountAddress: string,
+  ownerAddress: string
+): Promise<boolean> => {
+  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+  const contract = new Contract(accountAddress, safeAccountAbi, rpc);
+
+  try {
+    const isOwner = await contract.getFunction("isOwner")(ownerAddress);
+
+    return isOwner;
+  } catch (error) {
+    console.error("Error verifying safe owner:", error);
+
+    return false;
+  }
+};
