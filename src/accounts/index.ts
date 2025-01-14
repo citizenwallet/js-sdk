@@ -5,6 +5,20 @@ import safeAccountAbi from "../abi/Safe.abi.json";
 import { type CommunityConfig } from "../config";
 import { JsonRpcProvider, Contract, verifyMessage, hashMessage } from "ethers";
 
+export const getENSAddress = async (
+  mainnetRpcUrl: string,
+  domain: string
+): Promise<string | null> => {
+  try {
+    const provider = new JsonRpcProvider(mainnetRpcUrl);
+    const address = await provider.resolveName(domain);
+    return address;
+  } catch (error) {
+    console.error("Failed to resolve ENS name", error);
+    return null;
+  }
+};
+
 export const getAccountAddress = async (
   config: CommunityConfig,
   address: string,
