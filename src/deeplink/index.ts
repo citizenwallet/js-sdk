@@ -1,12 +1,15 @@
+import { CommunityConfig } from "../config";
 import { compress } from "../utils/gzip";
 
 export const generateLegacyReceiveLink = (
   baseUrl: string,
+  config: CommunityConfig,
   account: string,
-  alias: string,
   amount?: string,
   description?: string
 ): string => {
+  const alias = config.community.alias;
+
   let receiveParams = `?address=${account}&alias=${alias}`;
   if (amount) {
     receiveParams += `&amount=${amount}`;

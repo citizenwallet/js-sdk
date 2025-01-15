@@ -58,6 +58,7 @@ export const formatUsernameToBytes32 = (username: string): string => {
 };
 
 export const getProfileFromId = async (
+  ipfsDomain: string,
   config: CommunityConfig,
   id: string
 ): Promise<ProfileWithTokenId | null> => {
@@ -74,15 +75,10 @@ export const getProfileFromId = async (
 
     const uri: string = await contract.getFunction("tokenURI")(address);
 
-    const profile = await downloadJsonFromIpfs<Profile>(uri);
-
-    const baseUrl = dotenv.config().parsed?.IPFS_DOMAIN;
-    if (!baseUrl) {
-      throw new Error("IPFS_DOMAIN is not set");
-    }
+    const profile = await downloadJsonFromIpfs<Profile>(ipfsDomain, uri);
 
     return {
-      ...formatProfileImageLinks(`https://${baseUrl}`, profile),
+      ...formatProfileImageLinks(`https://${ipfsDomain}`, profile),
       token_id: id,
     };
   } catch (error) {
@@ -92,15 +88,17 @@ export const getProfileFromId = async (
 };
 
 export const getProfileFromAddress = async (
+  ipfsDomain: string,
   config: CommunityConfig,
   address: string
 ): Promise<ProfileWithTokenId | null> => {
   const id = addressToId(address);
 
-  return getProfileFromId(config, id.toString());
+  return getProfileFromId(ipfsDomain, config, id.toString());
 };
 
 export const getProfileFromUsername = async (
+  ipfsDomain: string,
   config: CommunityConfig,
   username: string
 ): Promise<ProfileWithTokenId | null> => {
@@ -119,17 +117,12 @@ export const getProfileFromUsername = async (
       formattedUsername
     );
 
-    const profile = await downloadJsonFromIpfs<Profile>(uri);
+    const profile = await downloadJsonFromIpfs<Profile>(ipfsDomain, uri);
 
     const id = addressToId(profile.account);
 
-    const baseUrl = dotenv.config().parsed?.IPFS_DOMAIN;
-    if (!baseUrl) {
-      throw new Error("IPFS_DOMAIN is not set");
-    }
-
     return {
-      ...formatProfileImageLinks(`https://${baseUrl}`, profile),
+      ...formatProfileImageLinks(`https://${ipfsDomain}`, profile),
       token_id: id.toString(),
     };
   } catch (error) {

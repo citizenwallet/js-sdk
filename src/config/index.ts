@@ -156,12 +156,10 @@ export class CommunityConfig {
     ] as ConfigSafeCard;
   }
 
-  get communityUrl(): string {
+  communityUrl(baseDomain: string): string {
     return this.config.community.custom_domain
       ? `https://${this.config.community.custom_domain}`
-      : `https://${this.config.community.alias}.${
-          dotenv.config().parsed?.BASE_DOMAIN
-        }`;
+      : `https://${this.config.community.alias}.${baseDomain}`;
   }
 
   get explorer(): ConfigScan {

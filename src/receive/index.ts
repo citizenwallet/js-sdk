@@ -1,21 +1,22 @@
+import { CommunityConfig } from "../config";
+
 export const generateReceiveLink = (
   baseUrl: string,
+  config: CommunityConfig,
   account: string,
-  alias: string,
   amount?: string,
   description?: string
 ): string => {
-  const url = new URL(baseUrl);
+  const alias = config.community.alias;
 
-  url.searchParams.set("sendto", `${account}@${alias}`);
-
+  let url = `${baseUrl}/?sendto=${account}@${alias}`;
   if (amount) {
-    url.searchParams.set("amount", amount);
+    url += `&amount=${amount}`;
   }
 
   if (description) {
-    url.searchParams.set("description", description);
+    url += `&description=${encodeURIComponent(description)}`;
   }
 
-  return url.toString();
+  return url;
 };
