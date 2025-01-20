@@ -77,7 +77,7 @@ export function logDataToQueryString(
     .join("");
 }
 
-export class LogsService {
+export class LogsService<D = LogData, E = unknown> {
   private url: string;
 
   constructor(config: CommunityConfig) {
@@ -86,7 +86,7 @@ export class LogsService {
     this.url = `${network.node.url}/v1/logs`;
   }
 
-  async getLog<D = LogData, E = unknown>(
+  async getLog(
     tokenAddress: string,
     hash: string
   ): Promise<ObjectResponse<Log<D, E>, undefined>> {
@@ -96,7 +96,7 @@ export class LogsService {
     return resp.json();
   }
 
-  async getLogs<D = LogData, E = unknown>(
+  async getLogs(
     tokenAddress: string,
     signature: string,
     params?: PaginationParams & LogQueryParams
@@ -125,7 +125,7 @@ export class LogsService {
     return resp.json();
   }
 
-  async getAllLogs<D = LogData, E = unknown>(
+  async getAllLogs(
     tokenAddress: string,
     signature: string,
     params?: PaginationParams & LogQueryParams
@@ -145,7 +145,7 @@ export class LogsService {
     return resp.json();
   }
 
-  async getNewLogs<D = LogData, E = unknown>(
+  async getNewLogs(
     tokenAddress: string,
     signature: string,
     params?: PaginationParams & NewLogQueryParams
@@ -165,7 +165,7 @@ export class LogsService {
     return resp.json();
   }
 
-  async getAllNewLogs<D = LogData, E = unknown>(
+  async getAllNewLogs(
     tokenAddress: string,
     signature: string,
     params?: PaginationParams & NewLogQueryParams
