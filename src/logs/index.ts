@@ -1,7 +1,8 @@
 import type { CommunityConfig } from "../index";
 import { keccak256, toUtf8Bytes } from "ethers";
+import { TransferLogData } from "./transfer";
 
-export interface Log<E = unknown> {
+export interface Log<D = LogData, E = unknown> {
   hash: string;
   tx_hash: string;
   created_at: string; // ISO 8601 date string
@@ -10,10 +11,12 @@ export interface Log<E = unknown> {
   sender: string;
   to: string;
   value: string; // BigInt as string
-  data: LogData | null; // Assuming this could be any JSON object or null
+  data: D | null; // Assuming this could be any JSON object or null
   extra_data: E | null; // Assuming this could be any JSON object or null
   status: LogStatus;
 }
+
+export type ERC20TransferLog = Log<TransferLogData, unknown>;
 
 // Enum for LogStatus
 export enum LogStatus {
@@ -79,21 +82,21 @@ export class LogsService {
     this.url = `${network.node.url}/v1/logs`;
   }
 
-  async getLog<E = unknown>(
+  async getLog<D = LogData, E = unknown>(
     tokenAddress: string,
     hash: string
-  ): Promise<ObjectResponse<Log<E>, undefined>> {
+  ): Promise<ObjectResponse<Log<D, E>, undefined>> {
     const url = `${this.url}/${tokenAddress}/tx/${hash}`;
 
     const resp = await fetch(url);
     return resp.json();
   }
 
-  async getLogs<E = unknown>(
+  async getLogs<D = LogData, E = unknown>(
     tokenAddress: string,
     signature: string,
     params?: PaginationParams & LogQueryParams
-  ): Promise<ArrayResponse<Log<E>, ResponsePaginationMetadata>> {
+  ): Promise<ArrayResponse<Log<D, E>, ResponsePaginationMetadata>> {
     const hashedSignature = keccak256(toUtf8Bytes(signature));
 
     let url = `${this.url}/logs/v2/${tokenAddress}/${hashedSignature}`;
@@ -118,11 +121,11 @@ export class LogsService {
     return resp.json();
   }
 
-  async getAllLogs<E = unknown>(
+  async getAllLogs<D = LogData, E = unknown>(
     tokenAddress: string,
     signature: string,
     params?: PaginationParams & LogQueryParams
-  ): Promise<ArrayResponse<Log<E>, ResponsePaginationMetadata>> {
+  ): Promise<ArrayResponse<Log<D, E>, ResponsePaginationMetadata>> {
     const hashedSignature = keccak256(toUtf8Bytes(signature));
     let url = `${this.url}/${tokenAddress}/${hashedSignature}/all`;
 
@@ -138,11 +141,11 @@ export class LogsService {
     return resp.json();
   }
 
-  async getNewLogs<E = unknown>(
+  async getNewLogs<D = LogData, E = unknown>(
     tokenAddress: string,
     signature: string,
     params?: PaginationParams & NewLogQueryParams
-  ): Promise<ArrayResponse<Log<E>, ResponsePaginationMetadata>> {
+  ): Promise<ArrayResponse<Log<D, E>, ResponsePaginationMetadata>> {
     const hashedSignature = keccak256(toUtf8Bytes(signature));
     let url = `${this.url}/${tokenAddress}/${hashedSignature}/new`;
 
@@ -158,11 +161,11 @@ export class LogsService {
     return resp.json();
   }
 
-  async getAllNewLogs<E = unknown>(
+  async getAllNewLogs<D = LogData, E = unknown>(
     tokenAddress: string,
     signature: string,
     params?: PaginationParams & NewLogQueryParams
-  ): Promise<ArrayResponse<Log<E>, ResponsePaginationMetadata>> {
+  ): Promise<ArrayResponse<Log<D, E>, ResponsePaginationMetadata>> {
     const hashedSignature = keccak256(toUtf8Bytes(signature));
     let url = `${this.url}/${tokenAddress}/${hashedSignature}/new/all`;
 
