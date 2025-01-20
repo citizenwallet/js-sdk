@@ -1,6 +1,6 @@
-export interface TransferLogData {
+export interface ERC20TransferLogData {
   value: string;
   from: string;
   to: string;
-  token: string;
+  topic: string;
 }

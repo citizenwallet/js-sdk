@@ -1,6 +1,6 @@
 import type { CommunityConfig } from "../index";
 import { keccak256, toUtf8Bytes } from "ethers";
-import { TransferLogData } from "./transfer";
+import { ERC20TransferLogData } from "./transfer";
 import { MessageExtraData } from "./extra";
 
 export interface Log<D = LogData, E = unknown> {
@@ -17,7 +17,10 @@ export interface Log<D = LogData, E = unknown> {
   status: LogStatus;
 }
 
-export type ERC20TransferLog = Log<TransferLogData, MessageExtraData | null>;
+export type ERC20TransferLog = Log<
+  ERC20TransferLogData,
+  MessageExtraData | null
+>;
 
 // Enum for LogStatus
 export enum LogStatus {
