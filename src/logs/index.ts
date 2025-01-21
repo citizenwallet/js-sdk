@@ -98,12 +98,10 @@ export class LogsService<D = LogData, E = unknown> {
 
   async getLogs(
     tokenAddress: string,
-    signature: string,
+    topic: string,
     params?: PaginationParams & LogQueryParams
   ): Promise<ArrayResponse<Log<D, E>, ResponsePaginationMetadata>> {
-    const hashedSignature = keccak256(toUtf8Bytes(signature));
-
-    let url = `${this.url}/logs/v2/${tokenAddress}/${hashedSignature}`;
+    let url = `${this.url}/${tokenAddress}/${topic}`;
 
     if (params) {
       url += `?limit=${params.limit}&offset=${params.offset}`;
@@ -127,11 +125,10 @@ export class LogsService<D = LogData, E = unknown> {
 
   async getAllLogs(
     tokenAddress: string,
-    signature: string,
+    topic: string,
     params?: PaginationParams & LogQueryParams
   ): Promise<ArrayResponse<Log<D, E>, ResponsePaginationMetadata>> {
-    const hashedSignature = keccak256(toUtf8Bytes(signature));
-    let url = `${this.url}/${tokenAddress}/${hashedSignature}/all`;
+    let url = `${this.url}/${tokenAddress}/${topic}/all`;
 
     if (params) {
       url += `?limit=${params.limit}&offset=${params.offset}`;
@@ -147,17 +144,24 @@ export class LogsService<D = LogData, E = unknown> {
 
   async getNewLogs(
     tokenAddress: string,
-    signature: string,
+    topic: string,
     params?: PaginationParams & NewLogQueryParams
   ): Promise<ArrayResponse<Log<D, E>, ResponsePaginationMetadata>> {
-    const hashedSignature = keccak256(toUtf8Bytes(signature));
-    let url = `${this.url}/${tokenAddress}/${hashedSignature}/new`;
+    let url = `${this.url}/${tokenAddress}/${topic}/new`;
 
     if (params) {
       url += `?limit=${params.limit}&offset=${params.offset}`;
 
       if (params.fromDate) {
         url += `&fromDate=${params.fromDate}`;
+      }
+
+      if (params.data) {
+        url += logDataToQueryString(params.data);
+      }
+
+      if (params.orData) {
+        url += logDataToQueryString(params.orData, "data2");
       }
     }
 
@@ -167,11 +171,10 @@ export class LogsService<D = LogData, E = unknown> {
 
   async getAllNewLogs(
     tokenAddress: string,
-    signature: string,
+    topic: string,
     params?: PaginationParams & NewLogQueryParams
   ): Promise<ArrayResponse<Log<D, E>, ResponsePaginationMetadata>> {
-    const hashedSignature = keccak256(toUtf8Bytes(signature));
-    let url = `${this.url}/${tokenAddress}/${hashedSignature}/new/all`;
+    let url = `${this.url}/${tokenAddress}/${topic}/new/all`;
 
     if (params) {
       url += `?limit=${params.limit}&offset=${params.offset}`;
