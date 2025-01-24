@@ -32,6 +32,15 @@ export enum QRFormat {
   eip681Transfer,
   receiveUrl,
   unsupported,
+  walletConnectPairing,
+}
+
+const isWalletConnectURI = (uri: string): boolean => {
+  // WalletConnect URI format pattern
+  const wcPattern =
+    /^wc:[a-f0-9]{64}@\d+\?((?!&)[^&]*&)*relay-protocol=irn(&(?!&)[^&]*)*&symKey=[a-f0-9]{64}(&(?!&)[^&]*)*$/;
+
+  return wcPattern.test(uri);
 }
 
 export const parseQRFormat = (raw: string): QRFormat => {
@@ -45,6 +54,8 @@ export const parseQRFormat = (raw: string): QRFormat => {
     return QRFormat.receiveUrl;
   } else if (raw.includes("voucher=")) {
     return QRFormat.voucher;
+  } else if (isWalletConnectURI(raw)) {
+    return QRFormat.walletConnectPairing;
   } else {
     return QRFormat.unsupported;
   }
