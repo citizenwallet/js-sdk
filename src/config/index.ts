@@ -157,9 +157,12 @@ export class CommunityConfig {
   }
 
   communityUrl(baseDomain: string): string {
-    return this.config.community.custom_domain
-      ? `https://${this.config.community.custom_domain}`
-      : `https://${this.config.community.alias}.${baseDomain}`;
+    const { custom_domain, alias } = this.config.community;
+    if (custom_domain && !custom_domain.endsWith(baseDomain)) {
+      return `https://${custom_domain}`;
+    }
+
+    return `https://${alias}.${baseDomain}`;
   }
 
   get explorer(): ConfigScan {
