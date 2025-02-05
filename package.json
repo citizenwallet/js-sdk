@@ -19,7 +19,8 @@
         "test": "npx jest test/jest/*",
         "test-jest": "npx jest test/jest/*",
         "test-jest-watch": "npx jest --watch test/jest/*",
-        "manual-publish": "npm publish --access public"
+        "manual-publish": "npm publish --access public",
+        "card-instance": "tsx scripts/card-instance.ts"
     },
     "keywords": [
         "web3",
@@ -59,7 +60,8 @@
         "nock": "^13.5.1",
         "rimraf": "^5.0.5",
         "ts-jest": "^29.1.2",
-        "tsc-watch": "^6.0.4"
+        "tsc-watch": "^6.0.4",
+        "tsx": "^4.19.2"
     },
     "dependencies": {
         "@openzeppelin/contracts-upgradeable": "^5.0.2",
