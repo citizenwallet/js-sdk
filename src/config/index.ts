@@ -22,6 +22,7 @@ export interface ConfigCommunity {
   alias: string;
   custom_domain?: string;
   logo: string;
+  hidden?: boolean;
   theme?: ConfigCommunityTheme;
   profile: ConfigCommunityProfile;
   primary_token: ConfigCommunityToken;
