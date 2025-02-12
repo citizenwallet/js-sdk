@@ -17,3 +17,6 @@ Thumbs.db
 cache
 
 artifacts
+
+# jest
+coverage/

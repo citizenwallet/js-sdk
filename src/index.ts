@@ -13,3 +13,4 @@ export * from "./transactions";
 export * from "./cards";
 export * from "./calldata";
 export * from "./utils/crypto";
+export * from "./alias";

@@ -15,12 +15,10 @@
     "scripts": {
         "build": "rimraf dist && tsc",
         "watch": "tsc-watch --onSuccess \"tsc\"",
-        "pretest": "cp -a node_modules/smartcontracts/cache .",
-        "test": "npx jest test/jest/*",
-        "test-jest": "npx jest test/jest/*",
-        "test-jest-watch": "npx jest --watch test/jest/*",
-        "manual-publish": "npm publish --access public",
-        "card-instance": "tsx scripts/card-instance.ts"
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "test:coverage": "jest --coverage",
+        "manual-publish": "npm publish --access public"
     },
     "keywords": [
         "web3",
