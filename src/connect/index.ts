@@ -6,7 +6,7 @@ export const generateConnectionMessage = (
   accountAddress: string,
   expiryTimeStamp: string,
   redirectUrl: string
-) => {
+): string => {
   const message = `Signature auth for ${accountAddress} with expiry ${expiryTimeStamp} and redirect ${encodeURIComponent(
     redirectUrl
   )}`;
@@ -20,7 +20,7 @@ export const createConnectedUrl = async (
   accountAddress: string,
   expiryTimeStamp: string,
   redirectUrl: string
-) => {
+): Promise<string> => {
   const message = generateConnectionMessage(
     accountAddress,
     expiryTimeStamp,
