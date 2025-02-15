@@ -76,6 +76,11 @@ export const verifyConnectedUrl = async (
     );
   }
 
+  // check the expiry time
+  if (new Date(sigAuthExpiry).getTime() < Date.now()) {
+    throw new Error("Connection request expired");
+  }
+
   const message = generateConnectionMessage(
     sigAuthAccount,
     sigAuthExpiry,
