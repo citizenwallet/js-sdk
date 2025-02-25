@@ -1,6 +1,6 @@
 {
     "name": "@citizenwallet/sdk",
-    "version": "2.0.69",
+    "version": "2.0.70",
     "description": "An sdk to easily work with citizen wallet.",
     "main": "./dist/src/index.js",
     "module": "./dist/src/index.js",
