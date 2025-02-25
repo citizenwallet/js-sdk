@@ -58,24 +58,26 @@ interface JsonUserOp {
 
 const executeCallData = (
   contractAddress: string,
+  value: bigint,
   calldata: Uint8Array
 ): Uint8Array =>
   ethers.getBytes(
     accountInterface.encodeFunctionData("execute", [
       contractAddress,
-      BigInt(0),
+      value,
       calldata,
     ])
   );
 
 const executeSafeCallData = (
   contractAddress: string,
+  value: bigint,
   calldata: Uint8Array
 ): Uint8Array =>
   ethers.getBytes(
     safeInterface.encodeFunctionData("execTransactionFromModule", [
       contractAddress,
-      BigInt(0),
+      value,
       calldata,
       BigInt(0),
     ])
@@ -83,26 +85,28 @@ const executeSafeCallData = (
 
 const transferCallData = (
   tokenAddress: string,
+  value: bigint,
   receiver: string,
   amount: bigint
 ): Uint8Array =>
   ethers.getBytes(
     accountInterface.encodeFunctionData("execute", [
       tokenAddress,
-      BigInt(0),
+      value,
       erc20Token.encodeFunctionData("transfer", [receiver, amount]),
     ])
   );
 
 const safeTransferCallData = (
   tokenAddress: string,
+  value: bigint,
   receiver: string,
   amount: bigint
 ): Uint8Array =>
   ethers.getBytes(
     safeInterface.encodeFunctionData("execTransactionFromModule", [
       tokenAddress,
-      BigInt(0),
+      value,
       erc20Token.encodeFunctionData("transfer", [receiver, amount]),
       BigInt(0),
     ])
@@ -110,26 +114,28 @@ const safeTransferCallData = (
 
 const mintCallData = (
   tokenAddress: string,
+  value: bigint,
   receiver: string,
   amount: bigint
 ): Uint8Array =>
   ethers.getBytes(
     accountInterface.encodeFunctionData("execute", [
       tokenAddress,
-      BigInt(0),
+      value,
       erc20Token.encodeFunctionData("mint", [receiver, amount]),
     ])
   );
 
 const safeMintCallData = (
   tokenAddress: string,
+  value: bigint,
   receiver: string,
   amount: bigint
 ): Uint8Array =>
   ethers.getBytes(
     safeInterface.encodeFunctionData("execTransactionFromModule", [
       tokenAddress,
-      BigInt(0),
+      value,
       erc20Token.encodeFunctionData("mint", [receiver, amount]),
       BigInt(0),
     ])
@@ -137,26 +143,28 @@ const safeMintCallData = (
 
 const burnFromCallData = (
   tokenAddress: string,
+  value: bigint,
   receiver: string,
   amount: bigint
 ): Uint8Array =>
   ethers.getBytes(
     accountInterface.encodeFunctionData("execute", [
       tokenAddress,
-      BigInt(0),
+      value,
       erc20Token.encodeFunctionData("burnFrom", [receiver, amount]),
     ])
   );
 
 const safeBurnFromCallData = (
   tokenAddress: string,
+  value: bigint,
   receiver: string,
   amount: bigint
 ): Uint8Array =>
   ethers.getBytes(
     safeInterface.encodeFunctionData("execTransactionFromModule", [
       tokenAddress,
-      BigInt(0),
+      value,
       erc20Token.encodeFunctionData("burnFrom", [receiver, amount]),
       BigInt(0),
     ])
@@ -419,6 +427,7 @@ export class BundlerService {
     contractAddress: string,
     sender: string,
     data: Uint8Array,
+    value?: bigint,
     userOpData?: UserOpData,
     extraData?: UserOpExtraData
   ) {
@@ -426,8 +435,8 @@ export class BundlerService {
 
     const calldata =
       this.accountType === "cw-safe"
-        ? executeSafeCallData(contractAddress, data)
-        : executeCallData(contractAddress, data);
+        ? executeSafeCallData(contractAddress, value ?? BigInt(0), data)
+        : executeCallData(contractAddress, value ?? BigInt(0), data);
 
     let userop = await this.prepareUserOp(owner, sender, calldata);
 
@@ -459,8 +468,8 @@ export class BundlerService {
 
     const calldata =
       this.accountType === "cw-safe"
-        ? safeTransferCallData(tokenAddress, to, formattedAmount)
-        : transferCallData(tokenAddress, to, formattedAmount);
+        ? safeTransferCallData(tokenAddress, BigInt(0), to, formattedAmount)
+        : transferCallData(tokenAddress, BigInt(0), to, formattedAmount);
 
     const owner = await signer.getAddress();
 
@@ -505,8 +514,8 @@ export class BundlerService {
 
     const calldata =
       this.accountType === "cw-safe"
-        ? safeMintCallData(tokenAddress, to, formattedAmount)
-        : mintCallData(tokenAddress, to, formattedAmount);
+        ? safeMintCallData(tokenAddress, BigInt(0), to, formattedAmount)
+        : mintCallData(tokenAddress, BigInt(0), to, formattedAmount);
 
     const owner = await signer.getAddress();
 
@@ -564,8 +573,8 @@ export class BundlerService {
 
     const calldata =
       this.accountType === "cw-safe"
-        ? safeBurnFromCallData(tokenAddress, from, formattedAmount)
-        : burnFromCallData(tokenAddress, from, formattedAmount);
+        ? safeBurnFromCallData(tokenAddress, BigInt(0), from, formattedAmount)
+        : burnFromCallData(tokenAddress, BigInt(0), from, formattedAmount);
 
     const owner = await signer.getAddress();
 
