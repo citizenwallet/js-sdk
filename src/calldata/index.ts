@@ -7,6 +7,9 @@ const erc20Interface = new Interface(erc20Abi);
 const cardManagerModuleInterface = new Interface(cardManagerModuleAbi);
 
 export const tokenTransferEventTopic = id("Transfer(address,address,uint256)");
+export const tokenTransferSingleEventTopic = id(
+  "TransferSingle(address,address,address,uint256,uint256)"
+);
 
 export const tokenTransferCallData = (
   to: string,
