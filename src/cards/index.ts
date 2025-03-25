@@ -1,13 +1,6 @@
 import cardManagerModuleAbi from "../abi/CardManagerModule.abi.json";
 import { type CommunityConfig } from "../config";
-import {
-  JsonRpcProvider,
-  Contract,
-  toUtf8Bytes,
-  keccak256,
-  Wallet,
-  ZeroAddress,
-} from "ethers";
+import { JsonRpcProvider, Contract, toUtf8Bytes, keccak256 } from "ethers";
 
 export const getCardAddress = async (
   config: CommunityConfig,
@@ -30,6 +23,32 @@ export const getCardAddress = async (
     return accountAddress;
   } catch (error) {
     console.error("Error fetching account address:", error);
+
+    return null;
+  }
+};
+
+export const instanceOwner = async (
+  config: CommunityConfig
+): Promise<string | null> => {
+  try {
+    const cardConfig = config.primarySafeCardConfig;
+
+    const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
+
+    const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+
+    const contract = new Contract(
+      cardConfig.address,
+      cardManagerModuleAbi,
+      rpc
+    );
+
+    const owner = await contract.getFunction("instanceOwner")(instanceId);
+
+    return owner;
+  } catch (error) {
+    console.error("Error fetching instance owner:", error);
 
     return null;
   }
