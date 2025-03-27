@@ -4,12 +4,13 @@ import { CommunityConfig } from "../config";
 
 export const waitForTxSuccess = async (
   config: CommunityConfig,
-  txHash: string
+  txHash: string,
+  timeout: number = 12000
 ): Promise<boolean> => {
   try {
     const rpc = new JsonRpcProvider(config.primaryRPCUrl);
 
-    const receipt = await rpc.waitForTransaction(txHash);
+    const receipt = await rpc.waitForTransaction(txHash, 1, timeout);
     if (!receipt) {
       throw new Error("Transaction not found");
     }
