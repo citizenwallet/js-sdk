@@ -10,7 +10,7 @@ export interface ConfigCommunityProfile {
   chain_id: number;
 }
 
-export interface ConfigCommunityToken {
+export interface ConfigContractLocation {
   address: string;
   chain_id: number;
 }
@@ -25,9 +25,10 @@ export interface ConfigCommunity {
   hidden?: boolean;
   theme?: ConfigCommunityTheme;
   profile: ConfigCommunityProfile;
-  primary_token: ConfigCommunityToken;
-  primary_account_factory: ConfigCommunityToken;
-  primary_card_manager?: ConfigCommunityToken;
+  primary_token: ConfigContractLocation;
+  primary_account_factory: ConfigContractLocation;
+  primary_card_manager?: ConfigContractLocation;
+  primary_session_manager: ConfigContractLocation;
 }
 
 export interface ConfigToken {
@@ -65,6 +66,12 @@ export interface ConfigSafeCard {
   type: string;
 }
 
+export interface ConfigSession {
+  chain_id: number;
+  module_address: string;
+  factory_address: string;
+}
+
 export interface ConfigChainNode {
   url: string;
   ws_url: string;
@@ -92,6 +99,7 @@ export interface Config {
   scan: ConfigScan;
   accounts: { [key: string]: ConfigAccount };
   cards?: { [key: string]: ConfigClassicCard | ConfigSafeCard };
+  sessions: { [key: string]: ConfigSession };
   chains: { [key: string]: ConfigChain };
   ipfs: ConfigIPFS;
   plugins?: ConfigPlugin[];
@@ -124,6 +132,12 @@ export class CommunityConfig {
   get primaryAccountConfig(): ConfigAccount {
     return this.config.accounts[
       `${this.primaryNetwork.id}:${this.config.community.primary_account_factory.address}`
+    ];
+  }
+
+  get primarySessionConfig(): ConfigSession {
+    return this.config.sessions[
+      `${this.primaryNetwork.id}:${this.config.community.primary_session_manager.address}`
     ];
   }
 
@@ -184,6 +198,10 @@ export class CommunityConfig {
 
   get accounts(): { [key: string]: ConfigAccount } {
     return this.config.accounts;
+  }
+
+  get sessions(): { [key: string]: ConfigSession } {
+    return this.config.sessions;
   }
 
   get cards():
