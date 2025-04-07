@@ -24,7 +24,7 @@ export const createConnectedUrl = async (
   const message = generateConnectionMessage(
     accountAddress,
     expiryTimeStamp,
-    redirectUrl
+    redirectUrl,
   );
   const signature = await signer.signMessage(message);
 
@@ -40,59 +40,100 @@ export const createConnectedUrl = async (
     : `${url}?${params.toString()}`;
 };
 
-export const verifyConnectedUrl = async (
+export const verifyConnectedHeaders = async (
   config: CommunityConfig,
-  options: {
-    url?: string;
-    params?: URLSearchParams;
+  headers: {
+    "x-sigauth-account": string;
+    "x-sigauth-expiry": string;
+    "x-sigauth-signature": string;
+    "x-sigauth-redirect"?: string;
   }
 ): Promise<string | null> => {
-  if (!options.url && !options.params) {
-    throw new Error("Either url or params must be provided");
-  }
+  const { "x-sigauth-account": account, "x-sigauth-expiry": expiry, "x-sigauth-signature": signature, "x-sigauth-redirect": redirect ,} = headers;
 
-  const params =
-    options.params || new URLSearchParams(options.url?.split("?")[1]);
-  const sigAuthAccount = params.get("sigAuthAccount");
-  const sigAuthExpiry = params.get("sigAuthExpiry");
-  const sigAuthSignature = params.get("sigAuthSignature");
-  const sigAuthRedirect = params.get("sigAuthRedirect");
-
-  if (
-    !sigAuthAccount ||
-    !sigAuthExpiry ||
-    !sigAuthSignature ||
-    !sigAuthRedirect
-  ) {
-    const missingParams = [
-      !sigAuthAccount && "sigAuthAccount",
-      !sigAuthExpiry && "sigAuthExpiry",
-      !sigAuthSignature && "sigAuthSignature",
-      !sigAuthRedirect && "sigAuthRedirect",
+  if (!account || !expiry || !signature) {
+    const missingHeaders = [
+      !account && "x-sigauth-account",
+      !expiry && "x-sigauth-expiry",
+      !signature && "x-sigauth-signature",
     ].filter(Boolean);
 
-    throw new Error(
-      `Invalid connection request: missing ${missingParams.join(", ")}`
-    );
+    throw new Error(`Invalid connection request: missing ${missingHeaders.join(", ")}`);
   }
 
-  // check the expiry time
-  if (new Date(sigAuthExpiry).getTime() < Date.now()) {
+  if (new Date(expiry).getTime() < Date.now()) {
     throw new Error("Connection request expired");
   }
 
-  const message = generateConnectionMessage(
-    sigAuthAccount,
-    sigAuthExpiry,
-    sigAuthRedirect
-  );
+  const message = generateConnectionMessage(account, expiry, redirect ?? '');
 
   const verified = await verifyAccountOwnership(
     config,
-    sigAuthAccount,
+    account,
     message,
-    sigAuthSignature
+    signature
   );
 
-  return verified ? sigAuthAccount : null;
+  if (!verified) {
+    throw new Error("Invalid signature or account ownership verification failed");
+  }
+
+  return verified ? account : null;
 };
+
+// export const verifyConnectedUrl = async (
+//   config: CommunityConfig,
+//   options: {
+//     url?: string;
+//     params?: URLSearchParams;
+//   }
+// ): Promise<string | null> => {
+//   if (!options.url && !options.params) {
+//     throw new Error("Either url or params must be provided");
+//   }
+
+//   const params =
+//     options.params || new URLSearchParams(options.url?.split("?")[1]);
+//   const sigAuthAccount = params.get("sigAuthAccount");
+//   const sigAuthExpiry = params.get("sigAuthExpiry");
+//   const sigAuthSignature = params.get("sigAuthSignature");
+//   const sigAuthRedirect = params.get("sigAuthRedirect");
+
+//   if (
+//     !sigAuthAccount ||
+//     !sigAuthExpiry ||
+//     !sigAuthSignature ||
+//     !sigAuthRedirect
+//   ) {
+//     const missingParams = [
+//       !sigAuthAccount && "sigAuthAccount",
+//       !sigAuthExpiry && "sigAuthExpiry",
+//       !sigAuthSignature && "sigAuthSignature",
+//       !sigAuthRedirect && "sigAuthRedirect",
+//     ].filter(Boolean);
+
+//     throw new Error(
+//       `Invalid connection request: missing ${missingParams.join(", ")}`
+//     );
+//   }
+
+//   // check the expiry time
+//   if (new Date(sigAuthExpiry).getTime() < Date.now()) {
+//     throw new Error("Connection request expired");
+//   }
+
+//   const message = generateConnectionMessage(
+//     sigAuthAccount,
+//     sigAuthExpiry,
+//     sigAuthRedirect
+//   );
+
+//   const verified = await verifyAccountOwnership(
+//     config,
+//     sigAuthAccount,
+//     message,
+//     sigAuthSignature
+//   );
+
+//   return verified ? sigAuthAccount : null;
+// };
