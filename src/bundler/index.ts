@@ -10,6 +10,7 @@ import { formatUsernameToBytes32 } from "../profiles";
 import { MINTER_ROLE, hasRole } from "../utils/crypto";
 import type { CommunityConfig } from "../config";
 import { tokenTransferEventTopic } from "../calldata";
+import { addressToId } from "../profiles/utils";
 
 const accountFactoryInterface = new ethers.Interface(accountFactoryContractAbi);
 const safeAccountFactoryInterface = new ethers.Interface(
@@ -204,6 +205,32 @@ const safeProfileCallData = (
         formatUsernameToBytes32(username),
         ipfsHash,
       ]),
+    ])
+  );
+};
+
+const profileBurnCallData = (
+  profileContractAddress: string,
+  tokenId: bigint
+): Uint8Array => {
+  return ethers.getBytes(
+    accountInterface.encodeFunctionData("execute", [
+      profileContractAddress,
+      BigInt(0),
+      profileInterface.encodeFunctionData("burn", [tokenId]),
+    ])
+  );
+};
+
+const safeProfileBurnCallData = (
+  profileContractAddress: string,
+  tokenId: bigint
+): Uint8Array => {
+  return ethers.getBytes(
+    safeInterface.encodeFunctionData("execTransactionFromModule", [
+      profileContractAddress,
+      BigInt(0),
+      profileInterface.encodeFunctionData("burn", [tokenId]),
     ])
   );
 };
@@ -660,6 +687,42 @@ export class BundlerService {
             username,
             ipfsHash
           );
+
+    const owner = await signer.getAddress();
+
+    let userop = await this.prepareUserOp(
+      owner,
+      signerAccountAddress,
+      calldata
+    );
+
+    // get the paymaster to sign the userop
+    userop = await this.paymasterSignUserOp(userop);
+
+    // sign the userop
+    const signature = await this.signUserOp(signer, userop);
+
+    userop.signature = signature;
+
+    // submit the user op
+    const hash = await this.submitUserOp(userop);
+
+    return hash;
+  }
+
+  async burnProfile(
+    signer: ethers.Signer,
+    signerAccountAddress: string,
+    profileAccountAddress: string
+  ): Promise<string> {
+    const profile = this.config.community.profile;
+
+    const tokenId = addressToId(profileAccountAddress);
+
+    const calldata =
+      this.accountType === "cw-safe"
+        ? safeProfileBurnCallData(profile.address, tokenId)
+        : profileBurnCallData(profile.address, tokenId);
 
     const owner = await signer.getAddress();
 
