@@ -150,9 +150,9 @@ export const checkUsernameAvailability = async (
       "getFromUsername"
     )(formattedUsername);
 
-    return !!uri;
+    return uri === null || uri === undefined || uri === "";
   } catch (error) {
     console.error("Error checking username availability:", error);
-    return false;
+    return true;
   }
 };
