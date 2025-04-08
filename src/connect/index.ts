@@ -5,11 +5,13 @@ import { verifyAccountOwnership } from "../accounts";
 export const generateConnectionMessage = (
   accountAddress: string,
   expiryTimeStamp: string,
-  redirectUrl: string
+  redirectUrl?: string
 ): string => {
-  const message = `Signature auth for ${accountAddress} with expiry ${expiryTimeStamp} and redirect ${encodeURIComponent(
-    redirectUrl
-  )}`;
+  let message = `Signature auth for ${accountAddress} with expiry ${expiryTimeStamp}`;
+
+  if (redirectUrl) {
+    message += ` and redirect ${encodeURIComponent(redirectUrl)}`;
+  }
 
   return hashMessage(message);
 };
@@ -19,7 +21,7 @@ export const createConnectedUrl = async (
   signer: Signer,
   accountAddress: string,
   expiryTimeStamp: string,
-  redirectUrl: string
+  redirectUrl?: string
 ): Promise<string> => {
   const message = generateConnectionMessage(
     accountAddress,
@@ -32,8 +34,10 @@ export const createConnectedUrl = async (
     sigAuthAccount: accountAddress,
     sigAuthExpiry: expiryTimeStamp,
     sigAuthSignature: signature,
-    sigAuthRedirect: redirectUrl,
   });
+  if (redirectUrl) {
+    params.set("sigAuthRedirect", redirectUrl);
+  }
 
   return url.includes("?")
     ? `${url}&${params.toString()}`
@@ -42,19 +46,12 @@ export const createConnectedUrl = async (
 
 export const verifyConnectedHeaders = async (
   config: CommunityConfig,
-  headers: {
-    "x-sigauth-account": string;
-    "x-sigauth-expiry": string;
-    "x-sigauth-signature": string;
-    "x-sigauth-redirect"?: string;
-  }
+  headers: Headers
 ): Promise<string | null> => {
-  const {
-    "x-sigauth-account": account,
-    "x-sigauth-expiry": expiry,
-    "x-sigauth-signature": signature,
-    "x-sigauth-redirect": redirect,
-  } = headers;
+  const account = headers.get("x-sigauth-account");
+  const expiry = headers.get("x-sigauth-expiry");
+  const signature = headers.get("x-sigauth-signature");
+  const redirect = headers.get("x-sigauth-redirect") || undefined;
 
   if (!account || !expiry || !signature) {
     const missingHeaders = [
@@ -72,7 +69,7 @@ export const verifyConnectedHeaders = async (
     throw new Error("Connection request expired");
   }
 
-  const message = generateConnectionMessage(account, expiry, redirect ?? "");
+  const message = generateConnectionMessage(account, expiry, redirect);
 
   const verified = await verifyAccountOwnership(
     config,
@@ -106,7 +103,7 @@ export const verifyConnectedUrl = async (
   const sigAuthAccount = params.get("sigAuthAccount");
   const sigAuthExpiry = params.get("sigAuthExpiry");
   const sigAuthSignature = params.get("sigAuthSignature");
-  const sigAuthRedirect = params.get("sigAuthRedirect");
+  const sigAuthRedirect = params.get("sigAuthRedirect") || undefined;
 
   if (
     !sigAuthAccount ||
