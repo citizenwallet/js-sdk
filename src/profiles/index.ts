@@ -130,3 +130,29 @@ export const getProfileFromUsername = async (
     return null;
   }
 };
+
+export const checkUsernameAvailability = async (
+  config: CommunityConfig,
+  username: string
+): Promise<boolean> => {
+  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+
+  const contract = new Contract(
+    config.community.profile.address,
+    profileContractAbi,
+    rpc
+  );
+
+  try {
+    const formattedUsername = formatUsernameToBytes32(username);
+
+    const uri: string | null | undefined = await contract.getFunction(
+      "getFromUsername"
+    )(formattedUsername);
+
+    return !!uri;
+  } catch (error) {
+    console.error("Error checking username availability:", error);
+    return false;
+  }
+};
