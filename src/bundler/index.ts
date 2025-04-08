@@ -189,6 +189,25 @@ const profileCallData = (
   );
 };
 
+const safeProfileCallData = (
+  profileContractAddress: string,
+  profileAccountAddress: string,
+  username: string,
+  ipfsHash: string
+): Uint8Array => {
+  return ethers.getBytes(
+    safeInterface.encodeFunctionData("execTransactionFromModule", [
+      profileContractAddress,
+      BigInt(0),
+      profileInterface.encodeFunctionData("set", [
+        profileAccountAddress,
+        formatUsernameToBytes32(username),
+        ipfsHash,
+      ]),
+    ])
+  );
+};
+
 const approveCallData = (
   tokenAddress: string,
   issuer: string,
@@ -627,12 +646,20 @@ export class BundlerService {
   ): Promise<string> {
     const profile = this.config.community.profile;
 
-    const calldata = profileCallData(
-      profile.address,
-      profileAccountAddress,
-      username,
-      ipfsHash
-    );
+    const calldata =
+      this.accountType === "cw-safe"
+        ? safeProfileCallData(
+            profile.address,
+            profileAccountAddress,
+            username,
+            ipfsHash
+          )
+        : profileCallData(
+            profile.address,
+            profileAccountAddress,
+            username,
+            ipfsHash
+          );
 
     const owner = await signer.getAddress();
 
