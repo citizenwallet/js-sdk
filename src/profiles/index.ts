@@ -153,8 +153,17 @@ export const hasProfileAdminRole = async (
     return isAdmin;
   } catch (error) {
     console.error("Error checking profile admin role:", error);
-    return false;
   }
+
+  try {
+    const isOwner = await contract.getFunction("owner")();
+
+    return isOwner.toLowerCase() === address.toLowerCase();
+  } catch (error) {
+    console.error("Error checking profile owner:", error);
+  }
+
+  return false;
 };
 
 export const checkUsernameAvailability = async (
