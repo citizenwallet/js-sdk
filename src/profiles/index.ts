@@ -1,9 +1,10 @@
-import { hexlify, toUtf8Bytes, JsonRpcProvider, Contract } from "ethers";
+import { hexlify, toUtf8Bytes, JsonRpcProvider, Contract, id } from "ethers";
 import { type CommunityConfig } from "../config";
 import { downloadJsonFromIpfs } from "../ipfs";
 import profileContractAbi from "../abi/Profile.abi.json";
 import dotenv from "dotenv";
 import { addressToId, idToAddress } from "./utils";
+import { PROFILE_ADMIN_ROLE } from "../utils/crypto";
 dotenv.config();
 
 export interface Profile {
@@ -128,6 +129,31 @@ export const getProfileFromUsername = async (
   } catch (error) {
     console.error("Error fetching profile:", error);
     return null;
+  }
+};
+
+export const hasProfileAdminRole = async (
+  config: CommunityConfig,
+  address: string
+): Promise<boolean> => {
+  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+
+  const contract = new Contract(
+    config.community.profile.address,
+    profileContractAbi,
+    rpc
+  );
+
+  try {
+    const isAdmin = await contract.getFunction("hasRole")(
+      PROFILE_ADMIN_ROLE,
+      address
+    );
+
+    return isAdmin;
+  } catch (error) {
+    console.error("Error checking profile admin role:", error);
+    return false;
   }
 };
 
