@@ -205,6 +205,7 @@ const safeProfileCallData = (
         formatUsernameToBytes32(username),
         ipfsHash,
       ]),
+      BigInt(0),
     ])
   );
 };
@@ -231,6 +232,7 @@ const safeProfileBurnCallData = (
       profileContractAddress,
       BigInt(0),
       profileInterface.encodeFunctionData("burn", [tokenId]),
+      BigInt(0),
     ])
   );
 };
