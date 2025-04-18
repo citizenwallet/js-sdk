@@ -194,7 +194,7 @@ export const requestSession = async ({
   signedSessionHash: string;
   sessionExpiry: number;
 }): Promise<string> => {
-  const sessionManagerAddress = community.primarySessionConfig.module_address;
+  const sessionModuleAddress = community.primarySessionConfig.module_address;
   const sessionProvider = community.primarySessionConfig.provider_address;
 
   const bundler = new BundlerService(community);
@@ -214,7 +214,7 @@ export const requestSession = async ({
 
   const tx = await bundler.call(
     signer,
-    sessionManagerAddress,
+    sessionModuleAddress,
     sessionProvider,
     data
   );
@@ -250,13 +250,13 @@ export const verifyIncomingSessionRequest = async ({
 }): Promise<boolean> => {
   try {
     // Get the session manager contract address
-    const sessionManagerAddress = community.primarySessionConfig.module_address;
+    const sessionModuleAddress = community.primarySessionConfig.module_address;
     const sessionProvider = community.primarySessionConfig.provider_address;
 
     const rpcProvider = new JsonRpcProvider(community.primaryRPCUrl);
 
     const contract = new Contract(
-      sessionManagerAddress,
+      sessionModuleAddress,
       sessionManagerInterface,
       rpcProvider
     );
@@ -322,7 +322,7 @@ export const confirmSession = async ({
   sessionHash: string;
   signedSessionHash: string;
 }): Promise<string> => {
-  const sessionManagerAddress = community.primarySessionConfig.module_address;
+  const sessionModuleAddress = community.primarySessionConfig.module_address;
   const sessionProvider = community.primarySessionConfig.provider_address;
 
   const bundler = new BundlerService(community);
@@ -337,7 +337,7 @@ export const confirmSession = async ({
 
   const tx = await bundler.call(
     signer,
-    sessionManagerAddress,
+    sessionModuleAddress,
     sessionProvider,
     data
   );
