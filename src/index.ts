@@ -16,3 +16,4 @@ export * from "./utils/crypto";
 export * from "./alias";
 export * from "./connect";
 export * from "./utils/crypto";
+export * from "./session";
