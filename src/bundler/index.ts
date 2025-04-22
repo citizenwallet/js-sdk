@@ -341,6 +341,35 @@ const safeGrantRoleCallData = (
     ])
   );
 
+const revokeRoleCallData = (
+  tokenAddress: string,
+  value: bigint,
+  role: string,
+  account: string
+): Uint8Array =>
+  ethers.getBytes(
+    accountInterface.encodeFunctionData("execute", [
+      tokenAddress,
+      value,
+      accessControlInterface.encodeFunctionData("revokeRole", [role, account]),
+    ])
+  );
+
+const safeRevokeRoleCallData = (
+  tokenAddress: string,
+  value: bigint,
+  role: string,
+  account: string
+): Uint8Array =>
+  ethers.getBytes(
+    safeInterface.encodeFunctionData("execTransactionFromModule", [
+      tokenAddress,
+      value,
+      accessControlInterface.encodeFunctionData("revokeRole", [role, account]),
+      BigInt(0),
+    ])
+  );
+
 export interface BundlerOptions {}
 
 export class BundlerService {
@@ -806,6 +835,35 @@ export class BundlerService {
       this.accountType === "cw-safe"
         ? safeGrantRoleCallData(tokenAddress, BigInt(0), role, account)
         : grantRoleCallData(tokenAddress, BigInt(0), role, account);
+    const owner = await signer.getAddress();
+
+    let userop = await this.prepareUserOp(owner, sender, calldata);
+
+    // get the paymaster to sign the userop
+    userop = await this.paymasterSignUserOp(userop);
+
+    // sign the userop
+    const signature = await this.signUserOp(signer, userop);
+
+    userop.signature = signature;
+
+    // submit the user op
+    const hash = await this.submitUserOp(userop);
+
+    return hash;
+  }
+
+  async revokeRole(
+    signer: ethers.Signer,
+    tokenAddress: string,
+    sender: string,
+    role: string,
+    account: string
+  ) {
+    const calldata =
+      this.accountType === "cw-safe"
+        ? safeRevokeRoleCallData(tokenAddress, BigInt(0), role, account)
+        : revokeRoleCallData(tokenAddress, BigInt(0), role, account);
     const owner = await signer.getAddress();
 
     let userop = await this.prepareUserOp(owner, sender, calldata);
