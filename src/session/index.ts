@@ -80,7 +80,7 @@ export const generateSessionHash = ({
   challenge,
 }: {
   sessionRequestHash: string;
-  challenge: number;
+  challenge: number | string;
 }): string => {
   // Use ABI encoding to match the Dart implementation
   const abiCoder = new AbiCoder();
@@ -343,4 +343,49 @@ export const confirmSession = async ({
   );
 
   return tx;
+};
+
+
+
+
+/**
+ * Checks if a session between an account and owner has expired by querying the session manager contract.
+ * This function makes a direct call to the contract's isExpired method.
+ *
+ * @param {CommunityConfig} params.community - Instance of CommunityConfig containing contract addresses and RPC URL
+ * @param {string} params.account - The account address to check the session for
+ * @param {string} params.owner - The owner address to check the session against
+ * @returns {Promise<boolean>} True if the session has expired or doesn't exist, false if the session is still valid
+ * @throws {Error} Logs error and returns false if the contract call fails
+ */
+export const isSessionExpired = async ({
+  community,
+  account,
+  owner,
+}: {
+  community: CommunityConfig;
+  account: string;
+  owner: string;
+}): Promise<boolean> => {
+  try {
+    // Get the session manager contract address
+    const sessionModuleAddress = community.primarySessionConfig.module_address;
+
+    const rpcProvider = new JsonRpcProvider(community.primaryRPCUrl);
+
+    const contract = new Contract(
+      sessionModuleAddress,
+      sessionManagerInterface,
+      rpcProvider
+    );
+
+    const result = await contract.isExpired(account, owner);
+
+    console.log("isSessionExpired", result);
+
+    return result;
+  } catch (error) {
+    console.error("Error checking if session is expired:", error);
+    return false;
+  }
 };
