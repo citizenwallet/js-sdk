@@ -1,4 +1,4 @@
-import { hashMessage, Signer } from "ethers";
+import { getAddress, hashMessage, Signer } from "ethers";
 import { CommunityConfig } from "../config";
 import { verifyAccountOwnership } from "../accounts";
 
@@ -7,7 +7,9 @@ export const generateConnectionMessage = (
   expiryTimeStamp: string,
   redirectUrl?: string
 ): string => {
-  let message = `Signature auth for ${accountAddress} with expiry ${expiryTimeStamp}`;
+  let message = `Signature auth for ${getAddress(
+    accountAddress
+  )} with expiry ${expiryTimeStamp}`;
 
   if (redirectUrl) {
     message += ` and redirect ${encodeURIComponent(redirectUrl)}`;
@@ -71,6 +73,8 @@ export const verifyConnectedHeaders = async (
 
   const message = generateConnectionMessage(account, expiry, redirect);
 
+  console.log("message", message);
+
   const verified = await verifyAccountOwnership(
     config,
     account,
@@ -105,17 +109,11 @@ export const verifyConnectedUrl = async (
   const sigAuthSignature = params.get("sigAuthSignature");
   const sigAuthRedirect = params.get("sigAuthRedirect") || undefined;
 
-  if (
-    !sigAuthAccount ||
-    !sigAuthExpiry ||
-    !sigAuthSignature ||
-    !sigAuthRedirect
-  ) {
+  if (!sigAuthAccount || !sigAuthExpiry || !sigAuthSignature) {
     const missingParams = [
       !sigAuthAccount && "sigAuthAccount",
       !sigAuthExpiry && "sigAuthExpiry",
       !sigAuthSignature && "sigAuthSignature",
-      !sigAuthRedirect && "sigAuthRedirect",
     ].filter(Boolean);
 
     throw new Error(
