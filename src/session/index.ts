@@ -386,6 +386,15 @@ export const isSessionExpired = async ({
   }
 };
 
+/**
+ * Retrieves the deterministic address for a 2FA account based on the community configuration, source, and type.
+ * This function queries the 2FA factory contract to compute the address that would be created with these parameters.
+ *
+ * @param {CommunityConfig} params.community - Instance of CommunityConfig containing factory and provider addresses
+ * @param {string} params.source - The source identifier used to generate the salt
+ * @param {string} params.type - The type identifier used to generate the salt
+ * @returns {Promise<string | null>} The computed 2FA address if successful, null if the computation fails
+ */
 export const getTwoFAAddress = async ({
   community,
   source,
