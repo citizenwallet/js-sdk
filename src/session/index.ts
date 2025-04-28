@@ -12,8 +12,10 @@ import {
 import { CommunityConfig } from "../config";
 import { BundlerService } from "../bundler";
 import sessionManagerModuleJson from "../abi/SessionManagerModule.json";
+import twoFAFactoryJson from "../abi/TwoFAFactory.json";
 
 const sessionManagerInterface = new Interface(sessionManagerModuleJson.abi);
+const twoFAFactoryInterface = new Interface(twoFAFactoryJson.abi);
 
 /**
  * Generates a unique salt for a session based on a source and type.
@@ -345,9 +347,6 @@ export const confirmSession = async ({
   return tx;
 };
 
-
-
-
 /**
  * Checks if a session between an account and owner has expired by querying the session manager contract.
  * This function makes a direct call to the contract's isExpired method.
@@ -367,7 +366,7 @@ export const isSessionExpired = async ({
   account: string;
   owner: string;
 }): Promise<boolean> => {
-  try {
+
     // Get the session manager contract address
     const sessionModuleAddress = community.primarySessionConfig.module_address;
 
@@ -378,14 +377,47 @@ export const isSessionExpired = async ({
       sessionManagerInterface,
       rpcProvider
     );
-
+  try {
     const result = await contract.isExpired(account, owner);
-
-    console.log("isSessionExpired", result);
-
     return result;
   } catch (error) {
     console.error("Error checking if session is expired:", error);
-    return false;
+    return true;
+  }
+};
+
+export const getTwoFAAddress = async ({
+  community,
+  source,
+  type,
+}: {
+  community: CommunityConfig;
+  source: string;
+  type: string;
+}): Promise<string | null> => {
+  const factoryAddress = community.primarySessionConfig.factory_address;
+  const providerAddress = community.primarySessionConfig.provider_address;
+
+  const salt = generateSessionSalt({ source, type });
+  const saltBigInt = BigInt(salt);
+
+  const rpcProvider = new JsonRpcProvider(community.primaryRPCUrl);
+
+  const contract = new Contract(
+    factoryAddress,
+    twoFAFactoryInterface,
+    rpcProvider
+  );
+
+  try {
+    const result = await contract.getFunction("getAddress")(
+      providerAddress,
+      saltBigInt
+    );
+
+    return result;
+  } catch (error) {
+    console.error("Error getting twoFA address:", error);
+    return null;
   }
 };
