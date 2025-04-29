@@ -430,3 +430,47 @@ export const getTwoFAAddress = async ({
     return null;
   }
 };
+
+
+/**
+ * Revokes an active session between a signer and an account through the session manager contract.
+ * This function sends a revocation transaction using the bundler service.
+ *
+ * @param {CommunityConfig} params.community - Instance of CommunityConfig containing contract addresses
+ * @param {Wallet} params.signer - The wallet instance used to sign and revoke the session
+ * @param {string} params.account - The account address from which to revoke the session
+ * @returns {Promise<string|null>} The transaction hash if successful, null if the revocation fails
+ */
+export const revokeSession   = async ({
+  community,
+  signer,
+  account
+}: {
+  community: CommunityConfig;
+  signer: Wallet;
+  account: string;
+}): Promise<string|null> => {
+  const sessionModuleAddress = community.primarySessionConfig.module_address;
+
+  const bundler = new BundlerService(community);
+
+  const data = getBytes(
+    sessionManagerInterface.encodeFunctionData("revoke", [
+      signer.address,
+    ])
+  );
+
+  try {
+      const tx = await bundler.call(
+        signer,
+        sessionModuleAddress,
+        account,
+        data
+      );
+
+      return tx;
+  } catch (error) {
+    console.error("Error revoking session:", error);
+    return null;
+  }
+};
