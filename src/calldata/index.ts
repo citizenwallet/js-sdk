@@ -11,9 +11,6 @@ export const tokenTransferSingleEventTopic = id(
   "TransferSingle(address,address,address,uint256,uint256)"
 );
 
-export const roleGrantedEventTopic = id("RoleGranted(bytes32,address,address)");
-export const roleRevokedEventTopic = id("RoleRevoked(bytes32,address,address)");
-
 export const tokenTransferCallData = (
   to: string,
   value: bigint
