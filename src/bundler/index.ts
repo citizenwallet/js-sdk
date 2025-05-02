@@ -11,6 +11,7 @@ import { MINTER_ROLE, hasRole } from "../utils/crypto";
 import type { CommunityConfig } from "../config";
 import { tokenTransferEventTopic } from "../calldata";
 import { addressToId } from "../profiles/utils";
+import accessControlABI from "../abi/IAccessControlUpgradeable.abi.json";
 
 const accountFactoryInterface = new ethers.Interface(accountFactoryContractAbi);
 const safeAccountFactoryInterface = new ethers.Interface(
@@ -20,6 +21,7 @@ const accountInterface = new ethers.Interface(accountContractAbi);
 const safeInterface = new ethers.Interface(safeContractAbi);
 const erc20Token = new ethers.Interface(tokenContractAbi);
 const profileInterface = new ethers.Interface(profileContractAbi);
+const accessControlInterface = new ethers.Interface(accessControlABI);
 
 export interface UserOpData {
   [key: string]: string;
@@ -309,6 +311,60 @@ const userOpFromJson = (userop: JsonUserOp): UserOp => {
 
   return newUserop;
 };
+
+const grantRoleCallData = (
+  tokenAddress: string,
+  role: string,
+  account: string
+): Uint8Array =>
+  ethers.getBytes(
+    accountInterface.encodeFunctionData("execute", [
+      tokenAddress,
+      BigInt(0),
+      erc20Token.encodeFunctionData("grantRole", [role, account]),
+    ])
+  );
+
+const safeGrantRoleCallData = (
+  tokenAddress: string,
+  role: string,
+  account: string
+): Uint8Array =>
+  ethers.getBytes(
+    safeInterface.encodeFunctionData("execTransactionFromModule", [
+      tokenAddress,
+      BigInt(0),
+      erc20Token.encodeFunctionData("grantRole", [role, account]),
+      BigInt(0),
+    ])
+  );
+
+const revokeRoleCallData = (
+  tokenAddress: string,
+  role: string,
+  account: string
+): Uint8Array =>
+  ethers.getBytes(
+    accountInterface.encodeFunctionData("execute", [
+      tokenAddress,
+      BigInt(0),
+      erc20Token.encodeFunctionData("revokeRole", [role, account]),
+    ])
+  );
+
+const safeRevokeRoleCallData = (
+  tokenAddress: string,
+  role: string,
+  account: string
+): Uint8Array =>
+  ethers.getBytes(
+    safeInterface.encodeFunctionData("execTransactionFromModule", [
+      tokenAddress,
+      BigInt(0),
+      erc20Token.encodeFunctionData("revokeRole", [role, account]),
+      BigInt(0),
+    ])
+  );
 
 export interface BundlerOptions {}
 
@@ -762,5 +818,63 @@ export class BundlerService {
     }
 
     return receipt;
+  }
+
+  async grantRole(
+    signer: ethers.Signer,
+    tokenAddress: string,
+    sender: string,
+    role: string,
+    account: string
+  ) {
+    const calldata =
+      this.accountType === "cw-safe"
+        ? safeGrantRoleCallData(tokenAddress, role, account)
+        : grantRoleCallData(tokenAddress, role, account);
+    const owner = await signer.getAddress();
+
+    let userop = await this.prepareUserOp(owner, sender, calldata);
+
+    // get the paymaster to sign the userop
+    userop = await this.paymasterSignUserOp(userop);
+
+    // sign the userop
+    const signature = await this.signUserOp(signer, userop);
+
+    userop.signature = signature;
+
+    // submit the user op
+    const hash = await this.submitUserOp(userop);
+
+    return hash;
+  }
+
+  async revokeRole(
+    signer: ethers.Signer,
+    tokenAddress: string,
+    sender: string,
+    role: string,
+    account: string
+  ) {
+    const calldata =
+      this.accountType === "cw-safe"
+        ? safeRevokeRoleCallData(tokenAddress, role, account)
+        : revokeRoleCallData(tokenAddress, role, account);
+    const owner = await signer.getAddress();
+
+    let userop = await this.prepareUserOp(owner, sender, calldata);
+
+    // get the paymaster to sign the userop
+    userop = await this.paymasterSignUserOp(userop);
+
+    // sign the userop
+    const signature = await this.signUserOp(signer, userop);
+
+    userop.signature = signature;
+
+    // submit the user op
+    const hash = await this.submitUserOp(userop);
+
+    return hash;
   }
 }
