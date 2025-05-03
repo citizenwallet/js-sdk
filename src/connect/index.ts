@@ -73,8 +73,6 @@ export const verifyConnectedHeaders = async (
 
   const message = generateConnectionMessage(account, expiry, redirect);
 
-  console.log("message", message);
-
   const verified = await verifyAccountOwnership(
     config,
     account,
