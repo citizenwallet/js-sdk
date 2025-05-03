@@ -1,6 +1,10 @@
 import { Wallet } from "ethers";
 import { CommunityConfig } from "../config";
-import { createConnectedUrl, verifyConnectedUrl } from "./index";
+import {
+  createConnectedUrl,
+  generateConnectionMessage,
+  verifyConnectedUrl,
+} from "./index";
 import path from "path";
 import { readFileSync } from "fs";
 
@@ -32,6 +36,17 @@ describe("Connection flow", () => {
     "utf8"
   );
   const mockConfig = new CommunityConfig(JSON.parse(config));
+
+  it("should generate a similar message", async () => {
+    const account = "0x4250526126491EF53ca4A73e97151b5c2597F43c";
+    const expiry = "2025-05-10T10:29:12.092327";
+    const expectedMessage =
+      "0x35bbfc49dbeb73133a5d7981b06852172d41c2bc196765e82f91be87e526f259";
+
+    const message = generateConnectionMessage(account, expiry);
+
+    expect(message).toBe(expectedMessage);
+  });
 
   it("should successfully connect with a valid signer", async () => {
     // Create a random wallet

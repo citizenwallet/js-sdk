@@ -1,4 +1,4 @@
-import { getAddress, hashMessage, Signer } from "ethers";
+import { getAddress, id, Signer } from "ethers";
 import { CommunityConfig } from "../config";
 import { verifyAccountOwnership } from "../accounts";
 
@@ -15,7 +15,7 @@ export const generateConnectionMessage = (
     message += ` and redirect ${encodeURIComponent(redirectUrl)}`;
   }
 
-  return hashMessage(message);
+  return id(message);
 };
 
 export const createConnectedUrl = async (
