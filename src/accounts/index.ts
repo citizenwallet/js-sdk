@@ -3,7 +3,13 @@ import erc20Abi from "../abi/ERC20.abi.json";
 import accountAbi from "../abi/Account.abi.json";
 import safeAccountAbi from "../abi/Safe.abi.json";
 import { type CommunityConfig } from "../config";
-import { JsonRpcProvider, Contract, verifyMessage, hashMessage } from "ethers";
+import {
+  JsonRpcProvider,
+  Contract,
+  verifyMessage,
+  hashMessage,
+  ZeroAddress,
+} from "ethers";
 
 export const getENSAddress = async (
   mainnetRpcUrl: string,
@@ -94,12 +100,18 @@ export const verifyAccountOwnership = async (
       console.warn(error);
       // Function is not implemented
       console.warn("isValidSignature is not implemented on this contract");
+    }
 
+    try {
       const owner = await contract.getFunction("owner")();
+      console.log("owner", owner);
 
       if (owner.toLowerCase() !== accountAddress.toLowerCase()) {
         return false;
       }
+    } catch (error) {
+      console.warn("owner function not implemented or failed:", error);
+      // If owner function doesn't exist or fails, we continue with other checks
     }
 
     const safeContract = new Contract(accountAddress, safeAccountAbi, rpc);
