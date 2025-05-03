@@ -1,4 +1,4 @@
-import { getAddress, id, Signer } from "ethers";
+import { getAddress, getBytes, id, Signer } from "ethers";
 import { CommunityConfig } from "../config";
 import { verifyAccountOwnership } from "../accounts";
 
@@ -30,7 +30,7 @@ export const createConnectedUrl = async (
     expiryTimeStamp,
     redirectUrl
   );
-  const signature = await signer.signMessage(message);
+  const signature = await signer.signMessage(getBytes(message));
 
   const params = new URLSearchParams({
     sigAuthAccount: accountAddress,

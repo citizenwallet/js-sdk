@@ -1,4 +1,4 @@
-import { Wallet } from "ethers";
+import { getBytes, verifyMessage, Wallet } from "ethers";
 import { CommunityConfig } from "../config";
 import {
   createConnectedUrl,
@@ -46,6 +46,26 @@ describe("Connection flow", () => {
     const message = generateConnectionMessage(account, expiry);
 
     expect(message).toBe(expectedMessage);
+  });
+
+  it("should recover the signer from the message", async () => {
+    const account = "0x4250526126491EF53ca4A73e97151b5c2597F43c";
+    const expiry = "2025-05-10T10:42:50.946999";
+
+    const expectedSigner = "0xc7708688514e823b239dc96501456484DC9F1858";
+
+    const expectedMessage =
+      "0x7c5d7b588eba2f5d8e2fc1b8873a09b608392615520ce97e355635645a5f123a";
+    const expectedSignature =
+      "0x1531134566a4728b629d0a8365683274be0491f44a8bf141dcbc326de7f714f903b335e8023855b207518478d55141975a26eac5985f1460c63b5b019bc230e41c";
+
+    const message = generateConnectionMessage(account, expiry);
+
+    expect(message).toBe(expectedMessage);
+
+    const recoveredSigner = verifyMessage(getBytes(message), expectedSignature);
+
+    expect(recoveredSigner).toBe(expectedSigner);
   });
 
   it("should successfully connect with a valid signer", async () => {

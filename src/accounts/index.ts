@@ -3,7 +3,13 @@ import erc20Abi from "../abi/ERC20.abi.json";
 import accountAbi from "../abi/Account.abi.json";
 import safeAccountAbi from "../abi/Safe.abi.json";
 import { type CommunityConfig } from "../config";
-import { JsonRpcProvider, Contract, verifyMessage, hashMessage } from "ethers";
+import {
+  JsonRpcProvider,
+  Contract,
+  verifyMessage,
+  hashMessage,
+  getBytes,
+} from "ethers";
 
 export const getENSAddress = async (
   mainnetRpcUrl: string,
@@ -70,7 +76,10 @@ export const verifyAccountOwnership = async (
   message: string,
   signature: string
 ): Promise<boolean> => {
-  const recoveredAddress = verifyMessage(message, signature);
+  const recoveredAddress = verifyMessage(
+    message.startsWith("0x") ? getBytes(message) : message,
+    signature
+  );
   if (recoveredAddress.toLowerCase() === accountAddress.toLowerCase()) {
     return true;
   }
