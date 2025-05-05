@@ -18,6 +18,33 @@ export const generateConnectionMessage = (
   return id(message);
 };
 
+export const generateConnectedHeaders = async (
+  signer: Signer,
+  accountAddress: string,
+  expiryTimeStamp: string,
+  redirectUrl?: string
+): Promise<{
+  "x-sigauth-account": string;
+  "x-sigauth-expiry": string;
+  "x-sigauth-signature": string;
+  "x-sigauth-redirect": string | undefined;
+}> => {
+  const message = generateConnectionMessage(
+    accountAddress,
+    expiryTimeStamp,
+    redirectUrl
+  );
+
+  const signature = await signer.signMessage(getBytes(message));
+
+  return {
+    "x-sigauth-account": accountAddress,
+    "x-sigauth-expiry": expiryTimeStamp,
+    "x-sigauth-signature": signature,
+    "x-sigauth-redirect": redirectUrl,
+  };
+};
+
 export const createConnectedUrl = async (
   url: string,
   signer: Signer,
