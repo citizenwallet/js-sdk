@@ -67,7 +67,16 @@ export const parseQRFormat = (raw: string): QRFormat => {
   }
 };
 
-// address, value, description
+/**
+ * A tuple type representing parsed QR code data for various formats (address, EIP-681, sendto URL, etc.)
+ * 
+ * @typedef {[string, string | null, string | null]} ParseQRData
+ * 
+ * The tuple contains:
+ * - [0] address: The recipient's address or identifier (e.g., Ethereum address, username)
+ * - [1] value: The transfer amount or value (can be null if not specified)
+ * - [2] description: Additional message or description for the transfer (can be null if not specified)
+ */
 type ParseQRData = [string, string | null, string | null];
 
 function parseEIP681(raw: string): ParseQRData {
