@@ -33,6 +33,7 @@ export enum QRFormat {
   receiveUrl,
   unsupported,
   walletConnectPairing,
+  sendtoUrl,
 }
 
 const isWalletConnectURI = (uri: string): boolean => {
@@ -41,13 +42,18 @@ const isWalletConnectURI = (uri: string): boolean => {
     /^wc:[a-f0-9]{64}@\d+\?((?!&)[^&]*&)*relay-protocol=irn(&(?!&)[^&]*)*&symKey=[a-f0-9]{64}(&(?!&)[^&]*)*$/;
 
   return wcPattern.test(uri);
-}
+};
 
 export const parseQRFormat = (raw: string): QRFormat => {
   if (raw.startsWith("ethereum:") && !raw.includes("/")) {
     return QRFormat.eip681;
   } else if (raw.startsWith("ethereum:") && raw.includes("/transfer")) {
     return QRFormat.eip681Transfer;
+  } else if (
+    (raw.startsWith("http://") || raw.startsWith("https://")) &&
+    raw.includes("sendto=")
+  ) {
+    return QRFormat.sendtoUrl;
   } else if (raw.startsWith("0x")) {
     return QRFormat.address;
   } else if (raw.includes("receiveParams=")) {
@@ -61,10 +67,22 @@ export const parseQRFormat = (raw: string): QRFormat => {
   }
 };
 
-function parseEIP681(raw: string): [string, string | null] {
+/**
+ * A tuple type representing parsed QR code data for various formats (address, EIP-681, sendto URL, etc.)
+ * 
+ * @typedef {[string, string | null, string | null]} ParseQRData
+ * 
+ * The tuple contains:
+ * - [0] address: The recipient's address or identifier (e.g., Ethereum address, username)
+ * - [1] value: The transfer amount or value (can be null if not specified)
+ * - [2] description: Additional message or description for the transfer (can be null if not specified)
+ */
+type ParseQRData = [string, string | null, string | null];
+
+function parseEIP681(raw: string): ParseQRData {
   const url = new URL(raw);
 
-  let address = url.pathname.split("/")[1];
+  let address = url.pathname.split("/")[0];
   if (address.includes("@")) {
     // includes chain id, remove
     address = address.split("@")[0];
@@ -72,24 +90,24 @@ function parseEIP681(raw: string): [string, string | null] {
 
   const value = url.searchParams.get("value");
 
-  return [address, value];
+  return [address, value, null];
 }
 
-function parseEIP681Transfer(raw: string): [string, string | null] {
+function parseEIP681Transfer(raw: string): ParseQRData {
   const url = new URL(raw);
 
   const address = url.searchParams.get("address");
   const value = url.searchParams.get("uint256");
 
-  return [address || "", value];
+  return [address || "", value, null];
 }
 
-function parseReceiveLink(raw: string): [string, string | null] {
+function parseReceiveLink(raw: string): ParseQRData {
   const receiveUrl = new URL(raw.replace("#/", ""));
 
   const encodedParams = receiveUrl.searchParams.get("receiveParams");
   if (encodedParams === null) {
-    return ["", null];
+    return ["", null, null];
   }
 
   const decodedParams = decompress(encodedParams);
@@ -99,25 +117,53 @@ function parseReceiveLink(raw: string): [string, string | null] {
   const address = params.get("address");
   const amount = params.get("amount");
 
-  return [address || "", amount];
+  return [address || "", amount, null];
 }
 
-export const parseQRCode = (raw: string): [string, string | null] => {
+function parseSendtoUrl(raw: string): ParseQRData {
+  // Replace '/#/' with '/' in the URL
+  const cleanRaw = raw.replace("/#/", "/");
+  // Decode URL components
+  const decodedRaw = decodeURIComponent(cleanRaw);
+
+  // Parse URL and get query parameters
+  const receiveUrl = new URL(decodedRaw);
+  const params = receiveUrl.searchParams;
+
+  const sendToParam = params.get("sendto");
+  const amountParam = params.get("amount");
+  const descriptionParam = params.get("description");
+
+  // Return early if no sendto parameter
+  if (!sendToParam) {
+    return ["", null, null];
+  }
+
+  // Split sendto parameter into address and alias
+  const [address, alias] = sendToParam.split("@");
+
+  // Return parsed data
+  return [address, amountParam, descriptionParam];
+}
+
+export const parseQRCode = (raw: string): ParseQRData => {
   const format = parseQRFormat(raw);
 
   switch (format) {
     case QRFormat.address:
-      return [raw, null];
+      return [raw, null, null];
     case QRFormat.eip681:
       return parseEIP681(raw);
     case QRFormat.eip681Transfer:
       return parseEIP681Transfer(raw);
     case QRFormat.receiveUrl:
       return parseReceiveLink(raw);
+    case QRFormat.sendtoUrl:
+      return parseSendtoUrl(raw);
     case QRFormat.voucher:
     // vouchers are invalid for a transfer
     default:
-      return ["", null];
+      return ["", null, null];
   }
 };
 
