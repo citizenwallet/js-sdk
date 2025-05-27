@@ -92,14 +92,15 @@ export const createVoucher = async (
   config: CommunityConfig,
   voucherName: string,
   voucherCreator: string,
-  voucherSigner: BaseWallet
+  voucherSigner: BaseWallet,
+  accountFactoryAddress?: string
 ): Promise<{
   voucherLink: string;
   voucherAccountAddress: string;
 }> => {
   const provider = new JsonRpcProvider(config.primaryNetwork.node.url);
 
-  const accountsConfig = config.primaryAccountConfig;
+  const accountsConfig = config.getAccountConfig(accountFactoryAddress);
 
   const accountFactory = new Contract(
     accountsConfig.account_factory_address,

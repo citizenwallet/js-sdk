@@ -28,12 +28,13 @@ export const getENSAddress = async (
 export const getAccountAddress = async (
   config: CommunityConfig,
   address: string,
-  salt: bigint = BigInt(0)
+  salt: bigint = BigInt(0),
+  accountFactoryAddress?: string
 ): Promise<string | null> => {
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
 
   const contract = new Contract(
-    config.primaryAccountConfig.account_factory_address,
+    config.getAccountConfig(accountFactoryAddress).account_factory_address,
     accountFactoryAbi,
     rpc
   );
