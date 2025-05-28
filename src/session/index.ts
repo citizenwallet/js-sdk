@@ -244,18 +244,22 @@ export const verifyIncomingSessionRequest = async ({
   signer,
   sessionRequestHash,
   sessionHash,
+  accountFactoryAddress,
 }: {
   community: CommunityConfig;
   signer: Wallet;
   sessionRequestHash: string;
   sessionHash: string;
+  accountFactoryAddress?: string;
 }): Promise<boolean> => {
   try {
     // Get the session manager contract address
     const sessionModuleAddress = community.primarySessionConfig.module_address;
     const sessionProvider = community.primarySessionConfig.provider_address;
 
-    const rpcProvider = new JsonRpcProvider(community.primaryRPCUrl);
+    const rpcProvider = new JsonRpcProvider(
+      community.getRPCUrl(accountFactoryAddress)
+    );
 
     const contract = new Contract(
       sessionModuleAddress,
@@ -361,22 +365,25 @@ export const isSessionExpired = async ({
   community,
   account,
   owner,
+  accountFactoryAddress,
 }: {
   community: CommunityConfig;
   account: string;
   owner: string;
+  accountFactoryAddress?: string;
 }): Promise<boolean> => {
+  // Get the session manager contract address
+  const sessionModuleAddress = community.primarySessionConfig.module_address;
 
-    // Get the session manager contract address
-    const sessionModuleAddress = community.primarySessionConfig.module_address;
+  const rpcProvider = new JsonRpcProvider(
+    community.getRPCUrl(accountFactoryAddress)
+  );
 
-    const rpcProvider = new JsonRpcProvider(community.primaryRPCUrl);
-
-    const contract = new Contract(
-      sessionModuleAddress,
-      sessionManagerInterface,
-      rpcProvider
-    );
+  const contract = new Contract(
+    sessionModuleAddress,
+    sessionManagerInterface,
+    rpcProvider
+  );
   try {
     const result = await contract.isExpired(account, owner);
     return result;
@@ -399,10 +406,12 @@ export const getTwoFAAddress = async ({
   community,
   source,
   type,
+  accountFactoryAddress,
 }: {
   community: CommunityConfig;
   source: string;
   type: string;
+  accountFactoryAddress?: string;
 }): Promise<string | null> => {
   const factoryAddress = community.primarySessionConfig.factory_address;
   const providerAddress = community.primarySessionConfig.provider_address;
@@ -410,7 +419,9 @@ export const getTwoFAAddress = async ({
   const salt = generateSessionSalt({ source, type });
   const saltBigInt = BigInt(salt);
 
-  const rpcProvider = new JsonRpcProvider(community.primaryRPCUrl);
+  const rpcProvider = new JsonRpcProvider(
+    community.getRPCUrl(accountFactoryAddress)
+  );
 
   const contract = new Contract(
     factoryAddress,
@@ -431,7 +442,6 @@ export const getTwoFAAddress = async ({
   }
 };
 
-
 /**
  * Revokes an active session between a signer and an account through the session manager contract.
  * This function sends a revocation transaction using the bundler service.
@@ -441,34 +451,27 @@ export const getTwoFAAddress = async ({
  * @param {string} params.account - The account address from which to revoke the session
  * @returns {Promise<string|null>} The transaction hash if successful, null if the revocation fails
  */
-export const revokeSession   = async ({
+export const revokeSession = async ({
   community,
   signer,
-  account
+  account,
 }: {
   community: CommunityConfig;
   signer: Wallet;
   account: string;
-}): Promise<string|null> => {
+}): Promise<string | null> => {
   const sessionModuleAddress = community.primarySessionConfig.module_address;
 
   const bundler = new BundlerService(community);
 
   const data = getBytes(
-    sessionManagerInterface.encodeFunctionData("revoke", [
-      signer.address,
-    ])
+    sessionManagerInterface.encodeFunctionData("revoke", [signer.address])
   );
 
   try {
-      const tx = await bundler.call(
-        signer,
-        sessionModuleAddress,
-        account,
-        data
-      );
+    const tx = await bundler.call(signer, sessionModuleAddress, account, data);
 
-      return tx;
+    return tx;
   } catch (error) {
     console.error("Error revoking session:", error);
     return null;
