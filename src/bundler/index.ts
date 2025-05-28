@@ -378,7 +378,7 @@ export class BundlerService {
   constructor(private config: CommunityConfig, options?: BundlerOptions) {
     this.config = config;
 
-    const rpcUrl = this.config.primaryRPCUrl;
+    const rpcUrl = this.config.getRPCUrl(options?.accountFactoryAddress);
 
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
 

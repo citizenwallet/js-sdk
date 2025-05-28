@@ -4,9 +4,10 @@ import { JsonRpcProvider, Contract, toUtf8Bytes, keccak256 } from "ethers";
 
 export const getCardAddress = async (
   config: CommunityConfig,
-  hashedSerial: string
+  hashedSerial: string,
+  accountFactoryAddress?: string
 ): Promise<string | null> => {
-  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+  const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
 
   const cardConfig = config.primarySafeCardConfig;
 
@@ -29,14 +30,15 @@ export const getCardAddress = async (
 };
 
 export const instanceOwner = async (
-  config: CommunityConfig
+  config: CommunityConfig,
+  accountFactoryAddress?: string
 ): Promise<string | null> => {
   try {
     const cardConfig = config.primarySafeCardConfig;
 
     const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
 
-    const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+    const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
 
     const contract = new Contract(
       cardConfig.address,

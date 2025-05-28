@@ -31,7 +31,7 @@ export const getAccountAddress = async (
   salt: bigint = BigInt(0),
   accountFactoryAddress?: string
 ): Promise<string | null> => {
-  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+  const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
 
   const contract = new Contract(
     config.getAccountConfig(accountFactoryAddress).account_factory_address,
@@ -55,9 +55,10 @@ export const getAccountAddress = async (
 
 export const getAccountBalance = async (
   config: CommunityConfig,
-  address: string
+  address: string,
+  accountFactoryAddress?: string
 ): Promise<bigint | null> => {
-  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+  const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
   const contract = new Contract(config.primaryToken.address, erc20Abi, rpc);
 
   try {
@@ -75,7 +76,8 @@ export const verifyAccountOwnership = async (
   config: CommunityConfig,
   accountAddress: string,
   message: string,
-  signature: string
+  signature: string,
+  accountFactoryAddress?: string
 ): Promise<boolean> => {
   const recoveredAddress = verifyMessage(
     message.startsWith("0x") ? getBytes(message) : message,
@@ -86,7 +88,7 @@ export const verifyAccountOwnership = async (
   }
 
   try {
-    const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+    const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
     const contract = new Contract(accountAddress, accountAbi, rpc);
 
     // Check if isValidSignature is implemented by calling it
@@ -132,9 +134,10 @@ export const verifyAccountOwnership = async (
 export const isSafeOwner = async (
   config: CommunityConfig,
   accountAddress: string,
-  ownerAddress: string
+  ownerAddress: string,
+  accountFactoryAddress?: string
 ): Promise<boolean> => {
-  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+  const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
   const contract = new Contract(accountAddress, safeAccountAbi, rpc);
 
   try {
