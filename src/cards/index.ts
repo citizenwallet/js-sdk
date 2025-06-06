@@ -4,7 +4,8 @@ import { JsonRpcProvider, Contract, toUtf8Bytes, keccak256 } from "ethers";
 
 export const getCardAddress = async (
   config: CommunityConfig,
-  hashedSerial: string
+  hashedSerial: string,
+  instanceId?: string
 ): Promise<string | null> => {
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
 
@@ -12,11 +13,13 @@ export const getCardAddress = async (
 
   const contract = new Contract(cardConfig.address, cardManagerModuleAbi, rpc);
 
-  const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
+  const hashedInstanceId = keccak256(
+    toUtf8Bytes(instanceId ?? cardConfig.instance_id)
+  );
 
   try {
     const accountAddress = await contract.getFunction("getCardAddress")(
-      instanceId,
+      hashedInstanceId,
       hashedSerial
     );
 
@@ -29,12 +32,15 @@ export const getCardAddress = async (
 };
 
 export const instanceOwner = async (
-  config: CommunityConfig
+  config: CommunityConfig,
+  instanceId?: string
 ): Promise<string | null> => {
   try {
     const cardConfig = config.primarySafeCardConfig;
 
-    const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
+    const hashedInstanceId = keccak256(
+      toUtf8Bytes(instanceId ?? cardConfig.instance_id)
+    );
 
     const rpc = new JsonRpcProvider(config.primaryRPCUrl);
 
@@ -44,7 +50,7 @@ export const instanceOwner = async (
       rpc
     );
 
-    const owner = await contract.getFunction("instanceOwner")(instanceId);
+    const owner = await contract.getFunction("instanceOwner")(hashedInstanceId);
 
     return owner;
   } catch (error) {
