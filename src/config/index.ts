@@ -130,9 +130,32 @@ export class CommunityConfig {
     return `${this.primaryNetwork.node.url}/v1/rpc/${accountConfig.paymaster_address}`;
   }
 
+  getRPCUrl(accountFactoryAddress?: string): string {
+    if (!accountFactoryAddress) {
+      return this.primaryRPCUrl;
+    }
+
+    const accountConfig =
+      this.config.accounts[
+        `${this.primaryNetwork.id}:${accountFactoryAddress}`
+      ];
+
+    return `${this.primaryNetwork.node.url}/v1/rpc/${accountConfig.paymaster_address}`;
+  }
+
   get primaryAccountConfig(): ConfigAccount {
     return this.config.accounts[
       `${this.primaryNetwork.id}:${this.config.community.primary_account_factory.address}`
+    ];
+  }
+
+  getAccountConfig(accountFactoryAddress?: string): ConfigAccount {
+    if (!accountFactoryAddress) {
+      return this.primaryAccountConfig;
+    }
+
+    return this.config.accounts[
+      `${this.primaryNetwork.id}:${accountFactoryAddress}`
     ];
   }
 
