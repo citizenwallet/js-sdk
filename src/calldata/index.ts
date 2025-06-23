@@ -27,15 +27,18 @@ export const tokenMintCallData = (to: string, value: bigint): Uint8Array => {
 
 export const createInstanceCallData = (
   config: CommunityConfig,
-  contracts: string[]
+  contracts: string[],
+  instanceId?: string
 ): Uint8Array => {
   const cardConfig = config.primarySafeCardConfig;
 
-  const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
+  const hashedInstanceId = keccak256(
+    toUtf8Bytes(instanceId ?? cardConfig.instance_id)
+  );
 
   return getBytes(
     cardManagerModuleInterface.encodeFunctionData("createInstance", [
-      instanceId,
+      hashedInstanceId,
       contracts,
     ])
   );
@@ -43,15 +46,18 @@ export const createInstanceCallData = (
 
 export const updateInstanceContractsCallData = (
   config: CommunityConfig,
-  contracts: string[]
+  contracts: string[],
+  instanceId?: string
 ): Uint8Array => {
   const cardConfig = config.primarySafeCardConfig;
 
-  const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
+  const hashedInstanceId = keccak256(
+    toUtf8Bytes(instanceId ?? cardConfig.instance_id)
+  );
 
   return getBytes(
     cardManagerModuleInterface.encodeFunctionData("updateInstanceContracts", [
-      instanceId,
+      hashedInstanceId,
       contracts,
     ])
   );
@@ -59,15 +65,18 @@ export const updateInstanceContractsCallData = (
 
 export const updateWhitelistCallData = (
   config: CommunityConfig,
-  addresses: string[]
+  addresses: string[],
+  instanceId?: string
 ): Uint8Array => {
   const cardConfig = config.primarySafeCardConfig;
 
-  const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
+  const hashedInstanceId = keccak256(
+    toUtf8Bytes(instanceId ?? cardConfig.instance_id)
+  );
 
   return getBytes(
     cardManagerModuleInterface.encodeFunctionData("updateWhitelist", [
-      instanceId,
+      hashedInstanceId,
       addresses,
     ])
   );
@@ -78,15 +87,18 @@ export const callOnCardCallData = (
   hashedSerial: string,
   to: string,
   value: bigint,
-  data: Uint8Array
+  data: Uint8Array,
+  instanceId?: string
 ): Uint8Array => {
   const cardConfig = config.primarySafeCardConfig;
 
-  const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
+  const hashedInstanceId = keccak256(
+    toUtf8Bytes(instanceId ?? cardConfig.instance_id)
+  );
 
   return getBytes(
     cardManagerModuleInterface.encodeFunctionData("callOnCard", [
-      instanceId,
+      hashedInstanceId,
       hashedSerial,
       to,
       value,
@@ -98,15 +110,18 @@ export const callOnCardCallData = (
 export const addOwnerCallData = (
   config: CommunityConfig,
   hashedSerial: string,
-  newOwner: string
+  newOwner: string,
+  instanceId?: string
 ): Uint8Array => {
   const cardConfig = config.primarySafeCardConfig;
 
-  const instanceId = keccak256(toUtf8Bytes(cardConfig.instance_id));
+  const hashedInstanceId = keccak256(
+    toUtf8Bytes(instanceId ?? cardConfig.instance_id)
+  );
 
   return getBytes(
     cardManagerModuleInterface.encodeFunctionData("addOwner", [
-      instanceId,
+      hashedInstanceId,
       hashedSerial,
       newOwner,
     ])
