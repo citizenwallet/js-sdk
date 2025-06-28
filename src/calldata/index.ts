@@ -127,3 +127,17 @@ export const addOwnerCallData = (
     ])
   );
 };
+
+export const generateCalldataLink = (
+  baseUrl: string,
+  config: CommunityConfig,
+  address: string,
+  value: bigint,
+  calldata: string
+): string => {
+  const alias = config.community.alias;
+
+  const url = `${baseUrl}/?alias=${alias}&address=${address}&value=${value}&calldata=${calldata}`;
+
+  return url;
+};
