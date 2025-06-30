@@ -61,9 +61,10 @@ export const formatUsernameToBytes32 = (username: string): string => {
 export const getProfileFromId = async (
   ipfsDomain: string,
   config: CommunityConfig,
-  id: string
+  id: string,
+  accountFactoryAddress?: string
 ): Promise<ProfileWithTokenId | null> => {
-  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+  const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
 
   const contract = new Contract(
     config.community.profile.address,
@@ -101,9 +102,10 @@ export const getProfileFromAddress = async (
 export const getProfileFromUsername = async (
   ipfsDomain: string,
   config: CommunityConfig,
-  username: string
+  username: string,
+  accountFactoryAddress?: string
 ): Promise<ProfileWithTokenId | null> => {
-  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+  const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
 
   const contract = new Contract(
     config.community.profile.address,
@@ -134,9 +136,10 @@ export const getProfileFromUsername = async (
 
 export const hasProfileAdminRole = async (
   config: CommunityConfig,
-  address: string
+  address: string,
+  accountFactoryAddress?: string
 ): Promise<boolean> => {
-  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+  const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
 
   const contract = new Contract(
     config.community.profile.address,
@@ -168,9 +171,10 @@ export const hasProfileAdminRole = async (
 
 export const checkUsernameAvailability = async (
   config: CommunityConfig,
-  username: string
+  username: string,
+  accountFactoryAddress?: string
 ): Promise<boolean> => {
-  const rpc = new JsonRpcProvider(config.primaryRPCUrl);
+  const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
 
   const contract = new Contract(
     config.community.profile.address,
