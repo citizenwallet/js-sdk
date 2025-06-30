@@ -435,8 +435,10 @@ export class BundlerService {
     owner: string,
     sender: string,
     callData: Uint8Array,
-    accountFactoryAddress?: string
+    options?: { accountFactoryAddress?: string }
   ): Promise<UserOp> {
+    const { accountFactoryAddress } = options ?? {};
+
     const accountsConfig = this.config.getAccountConfig(accountFactoryAddress);
 
     const account_factory_address = accountsConfig.account_factory_address;
@@ -458,8 +460,10 @@ export class BundlerService {
 
   private async paymasterSignUserOp(
     userop: UserOp,
-    accountFactoryAddress?: string
+    options?: { accountFactoryAddress?: string }
   ): Promise<UserOp> {
+    const { accountFactoryAddress } = options ?? {};
+
     const method = "pm_ooSponsorUserOperation";
 
     const accountsConfig = this.config.getAccountConfig(accountFactoryAddress);
@@ -483,8 +487,10 @@ export class BundlerService {
   private async signUserOp(
     signer: ethers.Signer,
     userop: UserOp,
-    accountFactoryAddress?: string
+    options?: { accountFactoryAddress?: string }
   ): Promise<Uint8Array> {
+    const { accountFactoryAddress } = options ?? {};
+
     const accountsConfig = this.config.getAccountConfig(accountFactoryAddress);
 
     const tokenEntryPointContract = new ethers.Contract(
@@ -506,8 +512,10 @@ export class BundlerService {
     userop: UserOp,
     data?: UserOpData,
     extraData?: UserOpExtraData,
-    accountFactoryAddress?: string
+    options?: { accountFactoryAddress?: string }
   ) {
+    const { accountFactoryAddress } = options ?? {};
+
     const method = "eth_sendUserOperation";
 
     const accountConfig = this.config.getAccountConfig(accountFactoryAddress);
@@ -542,8 +550,10 @@ export class BundlerService {
     value?: bigint,
     userOpData?: UserOpData,
     extraData?: UserOpExtraData,
-    accountFactoryAddress?: string
+    options?: { accountFactoryAddress?: string }
   ) {
+    const { accountFactoryAddress } = options ?? {};
+
     const owner = await signer.getAddress();
 
     const calldata =
@@ -551,32 +561,26 @@ export class BundlerService {
         ? executeSafeCallData(contractAddress, value ?? BigInt(0), data)
         : executeCallData(contractAddress, value ?? BigInt(0), data);
 
-    let userop = await this.prepareUserOp(
-      owner,
-      sender,
-      calldata,
-      accountFactoryAddress
-    );
+    let userop = await this.prepareUserOp(owner, sender, calldata, {
+      accountFactoryAddress,
+    });
 
     // get the paymaster to sign the userop
-    userop = await this.paymasterSignUserOp(userop, accountFactoryAddress);
+    userop = await this.paymasterSignUserOp(userop, {
+      accountFactoryAddress,
+    });
 
     // sign the userop
-    const signature = await this.signUserOp(
-      signer,
-      userop,
-      accountFactoryAddress
-    );
+    const signature = await this.signUserOp(signer, userop, {
+      accountFactoryAddress,
+    });
 
     userop.signature = signature;
 
     // submit the user op
-    const hash = await this.submitUserOp(
-      userop,
-      userOpData,
-      extraData,
-      accountFactoryAddress
-    );
+    const hash = await this.submitUserOp(userop, userOpData, extraData, {
+      accountFactoryAddress,
+    });
 
     return hash;
   }
@@ -588,8 +592,10 @@ export class BundlerService {
     to: string,
     amount: string,
     description?: string,
-    accountFactoryAddress?: string
+    options?: { accountFactoryAddress?: string }
   ): Promise<string> {
+    const { accountFactoryAddress } = options ?? {};
+
     const token = this.config.primaryToken;
 
     const formattedAmount = ethers.parseUnits(amount, token.decimals);
@@ -601,22 +607,19 @@ export class BundlerService {
 
     const owner = await signer.getAddress();
 
-    let userop = await this.prepareUserOp(
-      owner,
-      from,
-      calldata,
-      accountFactoryAddress
-    );
+    let userop = await this.prepareUserOp(owner, from, calldata, {
+      accountFactoryAddress,
+    });
 
     // get the paymaster to sign the userop
-    userop = await this.paymasterSignUserOp(userop, accountFactoryAddress);
+    userop = await this.paymasterSignUserOp(userop, {
+      accountFactoryAddress,
+    });
 
     // sign the userop
-    const signature = await this.signUserOp(
-      signer,
-      userop,
-      accountFactoryAddress
-    );
+    const signature = await this.signUserOp(signer, userop, {
+      accountFactoryAddress,
+    });
 
     userop.signature = signature;
 
@@ -632,7 +635,7 @@ export class BundlerService {
       userop,
       data,
       description !== undefined ? { description } : undefined,
-      accountFactoryAddress
+      { accountFactoryAddress }
     );
 
     return hash;
@@ -645,8 +648,10 @@ export class BundlerService {
     to: string,
     amount: string,
     description?: string,
-    accountFactoryAddress?: string
+    options?: { accountFactoryAddress?: string }
   ): Promise<string> {
+    const { accountFactoryAddress } = options ?? {};
+
     const token = this.config.primaryToken;
 
     const formattedAmount = ethers.parseUnits(amount, token.decimals);
@@ -658,23 +663,20 @@ export class BundlerService {
 
     const owner = await signer.getAddress();
 
-    let userop = await this.prepareUserOp(
-      owner,
-      from,
-      calldata,
-      accountFactoryAddress
-    );
+    let userop = await this.prepareUserOp(owner, from, calldata, {
+      accountFactoryAddress,
+    });
 
     try {
       // get the paymaster to sign the userop
-      userop = await this.paymasterSignUserOp(userop, accountFactoryAddress);
+      userop = await this.paymasterSignUserOp(userop, {
+        accountFactoryAddress,
+      });
 
       // sign the userop
-      const signature = await this.signUserOp(
-        signer,
-        userop,
-        accountFactoryAddress
-      );
+      const signature = await this.signUserOp(signer, userop, {
+        accountFactoryAddress,
+      });
 
       userop.signature = signature;
     } catch (e) {
@@ -694,7 +696,7 @@ export class BundlerService {
         userop,
         data,
         description !== undefined ? { description } : undefined,
-        accountFactoryAddress
+        { accountFactoryAddress }
       );
 
       return hash;
@@ -715,8 +717,10 @@ export class BundlerService {
     from: string,
     amount: string,
     description?: string,
-    accountFactoryAddress?: string
+    options?: { accountFactoryAddress?: string }
   ): Promise<string> {
+    const { accountFactoryAddress } = options ?? {};
+
     const token = this.config.primaryToken;
 
     const formattedAmount = ethers.parseUnits(amount, token.decimals);
@@ -728,23 +732,20 @@ export class BundlerService {
 
     const owner = await signer.getAddress();
 
-    let userop = await this.prepareUserOp(
-      owner,
-      sender,
-      calldata,
-      accountFactoryAddress
-    );
+    let userop = await this.prepareUserOp(owner, sender, calldata, {
+      accountFactoryAddress,
+    });
 
     try {
       // get the paymaster to sign the userop
-      userop = await this.paymasterSignUserOp(userop, accountFactoryAddress);
+      userop = await this.paymasterSignUserOp(userop, {
+        accountFactoryAddress,
+      });
 
       // sign the userop
-      const signature = await this.signUserOp(
-        signer,
-        userop,
-        accountFactoryAddress
-      );
+      const signature = await this.signUserOp(signer, userop, {
+        accountFactoryAddress,
+      });
 
       userop.signature = signature;
     } catch (e) {
@@ -764,7 +765,7 @@ export class BundlerService {
         userop,
         data,
         description !== undefined ? { description } : undefined,
-        accountFactoryAddress
+        { accountFactoryAddress }
       );
 
       return hash;
@@ -784,8 +785,10 @@ export class BundlerService {
     profileAccountAddress: string,
     username: string,
     ipfsHash: string,
-    accountFactoryAddress?: string
+    options?: { accountFactoryAddress?: string }
   ): Promise<string> {
+    const { accountFactoryAddress } = options ?? {};
+
     const profile = this.config.community.profile;
 
     const calldata =
@@ -809,28 +812,25 @@ export class BundlerService {
       owner,
       signerAccountAddress,
       calldata,
-      accountFactoryAddress
+      { accountFactoryAddress }
     );
 
     // get the paymaster to sign the userop
-    userop = await this.paymasterSignUserOp(userop, accountFactoryAddress);
+    userop = await this.paymasterSignUserOp(userop, {
+      accountFactoryAddress,
+    });
 
     // sign the userop
-    const signature = await this.signUserOp(
-      signer,
-      userop,
-      accountFactoryAddress
-    );
+    const signature = await this.signUserOp(signer, userop, {
+      accountFactoryAddress,
+    });
 
     userop.signature = signature;
 
     // submit the user op
-    const hash = await this.submitUserOp(
-      userop,
-      undefined,
-      undefined,
-      accountFactoryAddress
-    );
+    const hash = await this.submitUserOp(userop, undefined, undefined, {
+      accountFactoryAddress,
+    });
 
     return hash;
   }
@@ -839,8 +839,10 @@ export class BundlerService {
     signer: ethers.Signer,
     signerAccountAddress: string,
     profileAccountAddress: string,
-    accountFactoryAddress?: string
+    options?: { accountFactoryAddress?: string }
   ): Promise<string> {
+    const { accountFactoryAddress } = options ?? {};
+
     const profile = this.config.community.profile;
 
     const tokenId = addressToId(profileAccountAddress);
@@ -856,28 +858,25 @@ export class BundlerService {
       owner,
       signerAccountAddress,
       calldata,
-      accountFactoryAddress
+      { accountFactoryAddress }
     );
 
     // get the paymaster to sign the userop
-    userop = await this.paymasterSignUserOp(userop, accountFactoryAddress);
+    userop = await this.paymasterSignUserOp(userop, {
+      accountFactoryAddress,
+    });
 
     // sign the userop
-    const signature = await this.signUserOp(
-      signer,
-      userop,
-      accountFactoryAddress
-    );
+    const signature = await this.signUserOp(signer, userop, {
+      accountFactoryAddress,
+    });
 
     userop.signature = signature;
 
     // submit the user op
-    const hash = await this.submitUserOp(
-      userop,
-      undefined,
-      undefined,
-      accountFactoryAddress
-    );
+    const hash = await this.submitUserOp(userop, undefined, undefined, {
+      accountFactoryAddress,
+    });
 
     return hash;
   }
@@ -904,40 +903,36 @@ export class BundlerService {
     sender: string,
     role: string,
     account: string,
-    accountFactoryAddress?: string
+    options?: { accountFactoryAddress?: string }
   ) {
+    const { accountFactoryAddress } = options ?? {};
+
     const calldata =
       this.accountType === "cw-safe"
         ? safeGrantRoleCallData(tokenAddress, role, account)
         : grantRoleCallData(tokenAddress, role, account);
     const owner = await signer.getAddress();
 
-    let userop = await this.prepareUserOp(
-      owner,
-      sender,
-      calldata,
-      accountFactoryAddress
-    );
+    let userop = await this.prepareUserOp(owner, sender, calldata, {
+      accountFactoryAddress,
+    });
 
     // get the paymaster to sign the userop
-    userop = await this.paymasterSignUserOp(userop, accountFactoryAddress);
+    userop = await this.paymasterSignUserOp(userop, {
+      accountFactoryAddress,
+    });
 
     // sign the userop
-    const signature = await this.signUserOp(
-      signer,
-      userop,
-      accountFactoryAddress
-    );
+    const signature = await this.signUserOp(signer, userop, {
+      accountFactoryAddress,
+    });
 
     userop.signature = signature;
 
     // submit the user op
-    const hash = await this.submitUserOp(
-      userop,
-      undefined,
-      undefined,
-      accountFactoryAddress
-    );
+    const hash = await this.submitUserOp(userop, undefined, undefined, {
+      accountFactoryAddress,
+    });
 
     return hash;
   }
@@ -948,40 +943,36 @@ export class BundlerService {
     sender: string,
     role: string,
     account: string,
-    accountFactoryAddress?: string
+    options?: { accountFactoryAddress?: string }
   ) {
+    const { accountFactoryAddress } = options ?? {};
+
     const calldata =
       this.accountType === "cw-safe"
         ? safeRevokeRoleCallData(tokenAddress, role, account)
         : revokeRoleCallData(tokenAddress, role, account);
     const owner = await signer.getAddress();
 
-    let userop = await this.prepareUserOp(
-      owner,
-      sender,
-      calldata,
-      accountFactoryAddress
-    );
+    let userop = await this.prepareUserOp(owner, sender, calldata, {
+      accountFactoryAddress,
+    });
 
     // get the paymaster to sign the userop
-    userop = await this.paymasterSignUserOp(userop, accountFactoryAddress);
+    userop = await this.paymasterSignUserOp(userop, {
+      accountFactoryAddress,
+    });
 
     // sign the userop
-    const signature = await this.signUserOp(
-      signer,
-      userop,
-      accountFactoryAddress
-    );
+    const signature = await this.signUserOp(signer, userop, {
+      accountFactoryAddress,
+    });
 
     userop.signature = signature;
 
     // submit the user op
-    const hash = await this.submitUserOp(
-      userop,
-      undefined,
-      undefined,
-      accountFactoryAddress
-    );
+    const hash = await this.submitUserOp(userop, undefined, undefined, {
+      accountFactoryAddress,
+    });
 
     return hash;
   }

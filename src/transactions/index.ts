@@ -6,8 +6,10 @@ export const waitForTxSuccess = async (
   config: CommunityConfig,
   txHash: string,
   timeout: number = 12000,
-  accountFactoryAddress?: string
+  options?: { accountFactoryAddress?: string }
 ): Promise<boolean> => {
+  const { accountFactoryAddress } = options ?? {};
+
   try {
     const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
 

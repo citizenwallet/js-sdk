@@ -29,8 +29,10 @@ export const getAccountAddress = async (
   config: CommunityConfig,
   address: string,
   salt: bigint = BigInt(0),
-  accountFactoryAddress?: string
+  options?: { accountFactoryAddress?: string }
 ): Promise<string | null> => {
+  const { accountFactoryAddress } = options ?? {};
+
   const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
 
   const contract = new Contract(
@@ -56,8 +58,10 @@ export const getAccountAddress = async (
 export const getAccountBalance = async (
   config: CommunityConfig,
   address: string,
-  accountFactoryAddress?: string
+  options?: { accountFactoryAddress?: string }
 ): Promise<bigint | null> => {
+  const { accountFactoryAddress } = options ?? {};
+
   const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
   const contract = new Contract(config.primaryToken.address, erc20Abi, rpc);
 
@@ -77,8 +81,10 @@ export const verifyAccountOwnership = async (
   accountAddress: string,
   message: string,
   signature: string,
-  accountFactoryAddress?: string
+  options?: { accountFactoryAddress?: string }
 ): Promise<boolean> => {
+  const { accountFactoryAddress } = options ?? {};
+
   const recoveredAddress = verifyMessage(
     message.startsWith("0x") ? getBytes(message) : message,
     signature
@@ -135,8 +141,10 @@ export const isSafeOwner = async (
   config: CommunityConfig,
   accountAddress: string,
   ownerAddress: string,
-  accountFactoryAddress?: string
+  options?: { accountFactoryAddress?: string }
 ): Promise<boolean> => {
+  const { accountFactoryAddress } = options ?? {};
+
   const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
   const contract = new Contract(accountAddress, safeAccountAbi, rpc);
 

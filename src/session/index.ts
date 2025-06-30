@@ -244,14 +244,16 @@ export const verifyIncomingSessionRequest = async ({
   signer,
   sessionRequestHash,
   sessionHash,
-  accountFactoryAddress,
+  options,
 }: {
   community: CommunityConfig;
   signer: Wallet;
   sessionRequestHash: string;
   sessionHash: string;
-  accountFactoryAddress?: string;
+  options?: { accountFactoryAddress?: string };
 }): Promise<boolean> => {
+  const { accountFactoryAddress } = options ?? {};
+
   try {
     // Get the session manager contract address
     const sessionModuleAddress = community.primarySessionConfig.module_address;
@@ -365,13 +367,15 @@ export const isSessionExpired = async ({
   community,
   account,
   owner,
-  accountFactoryAddress,
+  options,
 }: {
   community: CommunityConfig;
   account: string;
   owner: string;
-  accountFactoryAddress?: string;
+  options?: { accountFactoryAddress?: string };
 }): Promise<boolean> => {
+  const { accountFactoryAddress } = options ?? {};
+
   // Get the session manager contract address
   const sessionModuleAddress = community.primarySessionConfig.module_address;
 
@@ -406,13 +410,15 @@ export const getTwoFAAddress = async ({
   community,
   source,
   type,
-  accountFactoryAddress,
+  options,
 }: {
   community: CommunityConfig;
   source: string;
   type: string;
-  accountFactoryAddress?: string;
+  options?: { accountFactoryAddress?: string };
 }): Promise<string | null> => {
+  const { accountFactoryAddress } = options ?? {};
+
   const factoryAddress = community.primarySessionConfig.factory_address;
   const providerAddress = community.primarySessionConfig.provider_address;
 
