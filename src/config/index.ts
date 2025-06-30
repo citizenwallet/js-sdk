@@ -38,6 +38,7 @@ export interface ConfigToken {
   symbol: string;
   decimals: number;
   chain_id: number;
+  logo?: string;
 }
 
 export interface ConfigScan {
