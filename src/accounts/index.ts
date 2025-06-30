@@ -58,12 +58,16 @@ export const getAccountAddress = async (
 export const getAccountBalance = async (
   config: CommunityConfig,
   address: string,
-  options?: { accountFactoryAddress?: string }
+  options?: { accountFactoryAddress?: string; tokenAddress?: string }
 ): Promise<bigint | null> => {
-  const { accountFactoryAddress } = options ?? {};
+  const { accountFactoryAddress, tokenAddress } = options ?? {};
 
   const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
-  const contract = new Contract(config.primaryToken.address, erc20Abi, rpc);
+  const contract = new Contract(
+    tokenAddress ?? config.primaryToken.address,
+    erc20Abi,
+    rpc
+  );
 
   try {
     const balance = await contract.getFunction("balanceOf")(address);

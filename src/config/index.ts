@@ -131,6 +131,14 @@ export class CommunityConfig {
     return `${this.primaryNetwork.node.url}/v1/rpc/${accountConfig.paymaster_address}`;
   }
 
+  getToken(tokenAddress?: string): ConfigToken {
+    if (!tokenAddress) {
+      return this.primaryToken;
+    }
+
+    return this.config.tokens[`${this.primaryNetwork.id}:${tokenAddress}`];
+  }
+
   getRPCUrl(accountFactoryAddress?: string): string {
     if (!accountFactoryAddress) {
       return this.primaryRPCUrl;

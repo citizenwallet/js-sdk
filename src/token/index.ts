@@ -3,10 +3,14 @@ import erc20Abi from "../abi/ERC20.abi.json";
 import { CommunityConfig } from "../config";
 
 export const getTokenDecimals = async (
-  config: CommunityConfig
+  config: CommunityConfig,
+  options?: { tokenAddress?: string }
 ): Promise<bigint | null> => {
+  const { tokenAddress } = options ?? {};
+
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
-  const contract = new Contract(config.primaryToken.address, erc20Abi, rpc);
+  const token = config.getToken(tokenAddress);
+  const contract = new Contract(token.address, erc20Abi, rpc);
 
   try {
     const decimals = await contract.getFunction("decimals")();
@@ -20,10 +24,14 @@ export const getTokenDecimals = async (
 };
 
 export const getTokenName = async (
-  config: CommunityConfig
+  config: CommunityConfig,
+  options?: { tokenAddress?: string }
 ): Promise<bigint | null> => {
+  const { tokenAddress } = options ?? {};
+
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
-  const contract = new Contract(config.primaryToken.address, erc20Abi, rpc);
+  const token = config.getToken(tokenAddress);
+  const contract = new Contract(token.address, erc20Abi, rpc);
 
   try {
     const name = await contract.getFunction("name")();
@@ -37,10 +45,14 @@ export const getTokenName = async (
 };
 
 export const getTokenSymbol = async (
-  config: CommunityConfig
+  config: CommunityConfig,
+  options?: { tokenAddress?: string }
 ): Promise<bigint | null> => {
+  const { tokenAddress } = options ?? {};
+
   const rpc = new JsonRpcProvider(config.primaryRPCUrl);
-  const contract = new Contract(config.primaryToken.address, erc20Abi, rpc);
+  const token = config.getToken(tokenAddress);
+  const contract = new Contract(token.address, erc20Abi, rpc);
 
   try {
     const symbol = await contract.getFunction("symbol")();
@@ -54,16 +66,19 @@ export const getTokenSymbol = async (
 };
 
 export const getTokenMetadata = async (
-  config: CommunityConfig
+  config: CommunityConfig,
+  options?: { tokenAddress?: string }
 ): Promise<{
   decimals: bigint | null;
   name: bigint | null;
   symbol: bigint | null;
 } | null> => {
+  const { tokenAddress } = options ?? {};
+
   try {
-    const decimals = await getTokenDecimals(config);
-    const name = await getTokenName(config);
-    const symbol = await getTokenSymbol(config);
+    const decimals = await getTokenDecimals(config, { tokenAddress });
+    const name = await getTokenName(config, { tokenAddress });
+    const symbol = await getTokenSymbol(config, { tokenAddress });
 
     return {
       decimals,

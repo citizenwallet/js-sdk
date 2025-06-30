@@ -596,14 +596,14 @@ export class BundlerService {
   ): Promise<string> {
     const { accountFactoryAddress } = options ?? {};
 
-    const token = this.config.primaryToken;
+    const token = this.config.getToken(tokenAddress);
 
     const formattedAmount = ethers.parseUnits(amount, token.decimals);
 
     const calldata =
       this.accountType === "cw-safe"
-        ? safeTransferCallData(tokenAddress, BigInt(0), to, formattedAmount)
-        : transferCallData(tokenAddress, BigInt(0), to, formattedAmount);
+        ? safeTransferCallData(token.address, BigInt(0), to, formattedAmount)
+        : transferCallData(token.address, BigInt(0), to, formattedAmount);
 
     const owner = await signer.getAddress();
 
@@ -652,14 +652,14 @@ export class BundlerService {
   ): Promise<string> {
     const { accountFactoryAddress } = options ?? {};
 
-    const token = this.config.primaryToken;
+    const token = this.config.getToken(tokenAddress);
 
     const formattedAmount = ethers.parseUnits(amount, token.decimals);
 
     const calldata =
       this.accountType === "cw-safe"
-        ? safeMintCallData(tokenAddress, BigInt(0), to, formattedAmount)
-        : mintCallData(tokenAddress, BigInt(0), to, formattedAmount);
+        ? safeMintCallData(token.address, BigInt(0), to, formattedAmount)
+        : mintCallData(token.address, BigInt(0), to, formattedAmount);
 
     const owner = await signer.getAddress();
 
@@ -721,14 +721,14 @@ export class BundlerService {
   ): Promise<string> {
     const { accountFactoryAddress } = options ?? {};
 
-    const token = this.config.primaryToken;
+    const token = this.config.getToken(tokenAddress);
 
     const formattedAmount = ethers.parseUnits(amount, token.decimals);
 
     const calldata =
       this.accountType === "cw-safe"
-        ? safeBurnFromCallData(tokenAddress, BigInt(0), from, formattedAmount)
-        : burnFromCallData(tokenAddress, BigInt(0), from, formattedAmount);
+        ? safeBurnFromCallData(token.address, BigInt(0), from, formattedAmount)
+        : burnFromCallData(token.address, BigInt(0), from, formattedAmount);
 
     const owner = await signer.getAddress();
 
@@ -770,9 +770,9 @@ export class BundlerService {
 
       return hash;
     } catch (e) {
-      if (!(await hasRole(tokenAddress, MINTER_ROLE, from, this.provider))) {
+      if (!(await hasRole(token.address, MINTER_ROLE, from, this.provider))) {
         throw new Error(
-          `Signer (${from}) does not have the MINTER_ROLE on token contract ${tokenAddress}`
+          `Signer (${from}) does not have the MINTER_ROLE on token contract ${token.address}`
         );
       }
       throw new Error(`Error submitting user op: ${e}`);
@@ -907,10 +907,12 @@ export class BundlerService {
   ) {
     const { accountFactoryAddress } = options ?? {};
 
+    const token = this.config.getToken(tokenAddress);
+
     const calldata =
       this.accountType === "cw-safe"
-        ? safeGrantRoleCallData(tokenAddress, role, account)
-        : grantRoleCallData(tokenAddress, role, account);
+        ? safeGrantRoleCallData(token.address, role, account)
+        : grantRoleCallData(token.address, role, account);
     const owner = await signer.getAddress();
 
     let userop = await this.prepareUserOp(owner, sender, calldata, {
@@ -947,10 +949,12 @@ export class BundlerService {
   ) {
     const { accountFactoryAddress } = options ?? {};
 
+    const token = this.config.getToken(tokenAddress);
+
     const calldata =
       this.accountType === "cw-safe"
-        ? safeRevokeRoleCallData(tokenAddress, role, account)
-        : revokeRoleCallData(tokenAddress, role, account);
+        ? safeRevokeRoleCallData(token.address, role, account)
+        : revokeRoleCallData(token.address, role, account);
     const owner = await signer.getAddress();
 
     let userop = await this.prepareUserOp(owner, sender, calldata, {
