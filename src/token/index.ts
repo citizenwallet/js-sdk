@@ -10,7 +10,7 @@ export const getTokenDecimals = async (
 
   const rpc = new JsonRpcProvider(rpcUrl ?? config.primaryRPCUrl);
   const token = config.getToken(tokenAddress);
-  const contract = new Contract(token.address ?? tokenAddress!, erc20Abi, rpc);
+  const contract = new Contract(token.address, erc20Abi, rpc);
 
   try {
     const decimals = await contract.getFunction("decimals")();
@@ -29,7 +29,7 @@ export const getTokenName = async (
 
   const rpc = new JsonRpcProvider(rpcUrl ?? config.primaryRPCUrl);
   const token = config.getToken(tokenAddress);
-  const contract = new Contract(token.address ?? tokenAddress!, erc20Abi, rpc);
+  const contract = new Contract(token.address, erc20Abi, rpc);
 
   try {
     const name = await contract.getFunction("name")();
@@ -48,7 +48,7 @@ export const getTokenSymbol = async (
 
   const rpc = new JsonRpcProvider(rpcUrl ?? config.primaryRPCUrl);
   const token = config.getToken(tokenAddress);
-  const contract = new Contract(token.address ?? tokenAddress!, erc20Abi, rpc);
+  const contract = new Contract(token.address, erc20Abi, rpc);
 
   try {
     const symbol = await contract.getFunction("symbol")();
