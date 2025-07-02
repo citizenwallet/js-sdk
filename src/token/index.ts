@@ -7,16 +7,10 @@ export const getTokenDecimals = async (
   options?: { tokenAddress?: string; rpcUrl?: string }
 ): Promise<bigint | null> => {
   const { tokenAddress, rpcUrl } = options ?? {};
-  let contract: Contract;
 
-  if (rpcUrl) {
-    const rpc = new JsonRpcProvider(rpcUrl);
-    contract = new Contract(tokenAddress!, erc20Abi, rpc);
-  } else {
-    const rpc = new JsonRpcProvider(config.primaryRPCUrl);
-    const token = config.getToken(tokenAddress);
-    contract = new Contract(token.address, erc20Abi, rpc);
-  }
+  const rpc = new JsonRpcProvider(rpcUrl ?? config.primaryRPCUrl);
+  const token = config.getToken(tokenAddress);
+  const contract = new Contract(token.address ?? tokenAddress!, erc20Abi, rpc);
 
   try {
     const decimals = await contract.getFunction("decimals")();
@@ -32,16 +26,10 @@ export const getTokenName = async (
   options?: { tokenAddress?: string; rpcUrl?: string }
 ): Promise<bigint | null> => {
   const { tokenAddress, rpcUrl } = options ?? {};
-  let contract: Contract;
 
-  if (rpcUrl) {
-    const rpc = new JsonRpcProvider(rpcUrl);
-    contract = new Contract(tokenAddress!, erc20Abi, rpc);
-  } else {
-    const rpc = new JsonRpcProvider(config.primaryRPCUrl);
-    const token = config.getToken(tokenAddress);
-    contract = new Contract(token.address, erc20Abi, rpc);
-  }
+  const rpc = new JsonRpcProvider(rpcUrl ?? config.primaryRPCUrl);
+  const token = config.getToken(tokenAddress);
+  const contract = new Contract(token.address ?? tokenAddress!, erc20Abi, rpc);
 
   try {
     const name = await contract.getFunction("name")();
@@ -57,16 +45,10 @@ export const getTokenSymbol = async (
   options?: { tokenAddress?: string; rpcUrl?: string }
 ): Promise<bigint | null> => {
   const { tokenAddress, rpcUrl } = options ?? {};
-  let contract: Contract;
 
-  if (rpcUrl) {
-    const rpc = new JsonRpcProvider(rpcUrl);
-    contract = new Contract(tokenAddress!, erc20Abi, rpc);
-  } else {
-    const rpc = new JsonRpcProvider(config.primaryRPCUrl);
-    const token = config.getToken(tokenAddress);
-    contract = new Contract(token.address, erc20Abi, rpc);
-  }
+  const rpc = new JsonRpcProvider(rpcUrl ?? config.primaryRPCUrl);
+  const token = config.getToken(tokenAddress);
+  const contract = new Contract(token.address ?? tokenAddress!, erc20Abi, rpc);
 
   try {
     const symbol = await contract.getFunction("symbol")();
