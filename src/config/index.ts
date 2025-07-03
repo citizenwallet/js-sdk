@@ -93,6 +93,8 @@ export interface ConfigPlugin {
   icon: string;
   url: string;
   launch_mode?: string;
+  signature?: boolean;
+  token_address?: string;
 }
 
 export interface Config {
