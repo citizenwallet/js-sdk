@@ -94,6 +94,7 @@ export interface ConfigPlugin {
   url: string;
   launch_mode?: string;
   signature?: boolean;
+  token_chain_id?: number;
   token_address?: string;
 }
 
