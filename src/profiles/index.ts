@@ -3,7 +3,7 @@ import { type CommunityConfig } from "../config";
 import { downloadJsonFromIpfs } from "../ipfs";
 import profileContractAbi from "../abi/Profile.abi.json";
 import dotenv from "dotenv";
-import { addressToId, idToAddress } from "./utils";
+import { addressToId, idToAddress, limitStringLength } from "./utils";
 import { PROFILE_ADMIN_ROLE } from "../utils/crypto";
 import { getRandomLetters } from "../utils/random";
 dotenv.config();
@@ -210,10 +210,20 @@ export const verifyAndSuggestUsername = async (
 ): Promise<string | null> => {
   const { accountFactoryAddress } = options ?? {};
 
+  const formattedUsername = limitStringLength(
+    username,
+    32 - (1 + (options?.randomLetterLength ?? 4))
+  );
+
   try {
-    return _generateUniqueUsername(config, username, username, {
-      accountFactoryAddress,
-    });
+    return _generateUniqueUsername(
+      config,
+      formattedUsername,
+      formattedUsername,
+      {
+        accountFactoryAddress,
+      }
+    );
   } catch (error) {
     console.error("Error generating unique username:", error);
   }

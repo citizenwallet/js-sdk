@@ -19,3 +19,16 @@ export function idToAddress(id: bigint): string {
   const paddedHex = hexString.padStart(40, "0");
   return "0x" + paddedHex;
 }
+
+/**
+ * Limits a string's length to the specified length
+ * @param str The input string
+ * @param maxLength The maximum length of the string
+ * @returns The string truncated to the specified length
+ */
+export function limitStringLength(str: string, maxLength: number): string {
+  if (str.length <= maxLength) {
+    return str;
+  }
+  return str.slice(0, maxLength);
+}
