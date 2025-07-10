@@ -1,10 +1,11 @@
-import { hexlify, toUtf8Bytes, JsonRpcProvider, Contract, id } from "ethers";
+import { hexlify, toUtf8Bytes, JsonRpcProvider, Contract } from "ethers";
 import { type CommunityConfig } from "../config";
 import { downloadJsonFromIpfs } from "../ipfs";
 import profileContractAbi from "../abi/Profile.abi.json";
 import dotenv from "dotenv";
 import { addressToId, idToAddress } from "./utils";
 import { PROFILE_ADMIN_ROLE } from "../utils/crypto";
+import { getRandomLetters } from "../utils/random";
 dotenv.config();
 
 export interface Profile {
@@ -200,4 +201,56 @@ export const checkUsernameAvailability = async (
     console.error("Error checking username availability:", error);
     return true;
   }
+};
+
+export const verifyAndSuggestUsername = async (
+  config: CommunityConfig,
+  username: string,
+  options?: { accountFactoryAddress?: string; randomLetterLength?: number }
+): Promise<string | null> => {
+  const { accountFactoryAddress } = options ?? {};
+
+  try {
+    return _generateUniqueUsername(config, username, username, {
+      accountFactoryAddress,
+    });
+  } catch (error) {
+    console.error("Error generating unique username:", error);
+  }
+
+  return null;
+};
+
+const _generateUniqueUsername = async (
+  config: CommunityConfig,
+  username: string,
+  originalUsername: string,
+  options?: { accountFactoryAddress?: string; randomLetterLength?: number }
+): Promise<string | null> => {
+  const { accountFactoryAddress } = options ?? {};
+
+  try {
+    const available = await checkUsernameAvailability(config, username, {
+      accountFactoryAddress,
+    });
+
+    if (available) {
+      return username;
+    }
+
+    const randomLetters = getRandomLetters(options?.randomLetterLength);
+
+    return _generateUniqueUsername(
+      config,
+      `${originalUsername}-${randomLetters}`,
+      originalUsername,
+      {
+        accountFactoryAddress,
+      }
+    );
+  } catch (error) {
+    console.error("Error generating unique username:", error);
+  }
+
+  return null;
 };
