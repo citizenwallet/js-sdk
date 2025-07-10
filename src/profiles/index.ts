@@ -102,6 +102,31 @@ export const getProfileFromAddress = async (
   return getProfileFromId(ipfsDomain, config, id.toString());
 };
 
+export const getProfileUriFromId = async (
+  config: CommunityConfig,
+  token_id: BigInt,
+  options?: { accountFactoryAddress?: string }
+): Promise<string | null> => {
+  const { accountFactoryAddress } = options ?? {};
+
+  const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
+
+  const contract = new Contract(
+    config.community.profile.address,
+    profileContractAbi,
+    rpc
+  );
+
+  try {
+    const uri: string = await contract.getFunction("tokenURI")(token_id);
+
+    return uri;
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    return null;
+  }
+};
+
 export const getProfileFromUsername = async (
   ipfsDomain: string,
   config: CommunityConfig,
