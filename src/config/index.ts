@@ -142,6 +142,19 @@ export class CommunityConfig {
     return this.config.tokens[`${this.primaryNetwork.id}:${tokenAddress}`];
   }
 
+  getPlugin(tokenAddress: string, _chainId?: number): ConfigPlugin | undefined {
+    let chainId = _chainId;
+    if (!chainId) {
+      chainId = this.primaryNetwork.id;
+    }
+
+    return this.config.plugins?.find(
+      (plugin) =>
+        plugin.token_address === tokenAddress &&
+        (plugin.token_chain_id ? plugin.token_chain_id === chainId : true)
+    );
+  }
+
   getRPCUrl(accountFactoryAddress?: string): string {
     if (!accountFactoryAddress) {
       return this.primaryRPCUrl;
