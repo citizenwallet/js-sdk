@@ -93,6 +93,7 @@ export const verifyAccountOwnership = async (
     message.startsWith("0x") ? getBytes(message) : message,
     signature
   );
+
   if (recoveredAddress.toLowerCase() === accountAddress.toLowerCase()) {
     return true;
   }
@@ -121,8 +122,8 @@ export const verifyAccountOwnership = async (
     try {
       const owner = await contract.getFunction("owner")();
 
-      if (owner.toLowerCase() !== accountAddress.toLowerCase()) {
-        return false;
+      if (owner.toLowerCase() === recoveredAddress.toLowerCase()) {
+        return true;
       }
     } catch (error) {
       console.warn("owner function not implemented or failed:", error);
