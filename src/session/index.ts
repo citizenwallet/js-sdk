@@ -8,11 +8,11 @@ import {
   Interface,
   JsonRpcProvider,
   Contract,
-} from "ethers";
-import { CommunityConfig } from "../config";
-import { BundlerService } from "../bundler";
-import sessionManagerModuleJson from "../abi/SessionManagerModule.json";
-import twoFAFactoryJson from "../abi/TwoFAFactory.json";
+} from 'ethers';
+import { CommunityConfig } from '../config';
+import { BundlerService } from '../bundler';
+import sessionManagerModuleJson from '../abi/SessionManagerModule.json';
+import twoFAFactoryJson from '../abi/TwoFAFactory.json';
 
 const sessionManagerInterface = new Interface(sessionManagerModuleJson.abi);
 const twoFAFactoryInterface = new Interface(twoFAFactoryJson.abi);
@@ -61,7 +61,7 @@ export const generateSessionRequestHash = ({
   // Use ABI encoding to match the Dart implementation
   const abiCoder = new AbiCoder();
   const packedData = abiCoder.encode(
-    ["address", "address", "bytes32", "uint48"],
+    ['address', 'address', 'bytes32', 'uint48'],
     [sessionProvider, sessionOwner, salt, BigInt(expiry)]
   );
 
@@ -87,7 +87,7 @@ export const generateSessionHash = ({
   // Use ABI encoding to match the Dart implementation
   const abiCoder = new AbiCoder();
   const packedData = abiCoder.encode(
-    ["bytes32", "uint256"],
+    ['bytes32', 'uint256'],
     [sessionRequestHash, BigInt(challenge)]
   );
 
@@ -204,7 +204,7 @@ export const requestSession = async ({
   const challengeExpiry = Math.floor(Date.now() / 1000) + 120;
 
   const data = getBytes(
-    sessionManagerInterface.encodeFunctionData("request", [
+    sessionManagerInterface.encodeFunctionData('request', [
       sessionSalt,
       sessionRequestHash,
       signedSessionRequestHash,
@@ -274,20 +274,20 @@ export const verifyIncomingSessionRequest = async ({
       sessionRequestHash
     );
     if (result.length < 5) {
-      throw new Error("Session request not found");
+      throw new Error('Session request not found');
     }
 
     // check the expiry
     const expiry = Number(result[0]);
     const now = Math.floor(Date.now() / 1000);
     if (expiry < now) {
-      throw new Error("Session request expired");
+      throw new Error('Session request expired');
     }
 
     // check the challenge expiry
     const challengeExpiry = Number(result[1]);
     if (challengeExpiry < now) {
-      throw new Error("Challenge expired");
+      throw new Error('Challenge expired');
     }
 
     // Extract the stored signedSessionHash from the result
@@ -301,7 +301,7 @@ export const verifyIncomingSessionRequest = async ({
     // Compare the stored signedSessionHash with the provided one
     return storedSignedSessionHash === calculatedSignedSessionHash;
   } catch (error) {
-    console.error("Error verifying incoming session request:", error);
+    console.error('Error verifying incoming session request:', error);
     return false;
   }
 };
@@ -336,7 +336,7 @@ export const confirmSession = async ({
   const bundler = new BundlerService(community);
 
   const data = getBytes(
-    sessionManagerInterface.encodeFunctionData("confirm", [
+    sessionManagerInterface.encodeFunctionData('confirm', [
       sessionRequestHash,
       sessionHash,
       signedSessionHash,
@@ -392,7 +392,7 @@ export const isSessionExpired = async ({
     const result = await contract.isExpired(account, owner);
     return result;
   } catch (error) {
-    console.error("Error checking if session is expired:", error);
+    console.error('Error checking if session is expired:', error);
     return true;
   }
 };
@@ -415,19 +415,30 @@ export const getTwoFAAddress = async ({
   community: CommunityConfig;
   source: string;
   type: string;
-  options?: { accountFactoryAddress?: string };
+  options?: {
+    accountFactoryAddress?: string;
+    sessionFactoryAddress?: string;
+    sessionProviderAddress?: string;
+    rpcUrl?: string;
+  };
 }): Promise<string | null> => {
-  const { accountFactoryAddress } = options ?? {};
+  const {
+    accountFactoryAddress,
+    sessionFactoryAddress,
+    sessionProviderAddress,
+    rpcUrl,
+  } = options ?? {};
 
-  const factoryAddress = community.primarySessionConfig.factory_address;
-  const providerAddress = community.primarySessionConfig.provider_address;
+  const factoryAddress =
+    sessionFactoryAddress ?? community.primarySessionConfig.factory_address;
+  const providerAddress =
+    sessionProviderAddress ?? community.primarySessionConfig.provider_address;
 
   const salt = generateSessionSalt({ source, type });
   const saltBigInt = BigInt(salt);
 
-  const rpcProvider = new JsonRpcProvider(
-    community.getRPCUrl(accountFactoryAddress)
-  );
+  const resolvedRpcUrl = rpcUrl ?? community.getRPCUrl(accountFactoryAddress);
+  const rpcProvider = new JsonRpcProvider(resolvedRpcUrl);
 
   const contract = new Contract(
     factoryAddress,
@@ -436,14 +447,14 @@ export const getTwoFAAddress = async ({
   );
 
   try {
-    const result = await contract.getFunction("getAddress")(
+    const result = await contract.getFunction('getAddress')(
       providerAddress,
       saltBigInt
     );
 
     return result;
   } catch (error) {
-    console.error("Error getting twoFA address:", error);
+    console.error('Error getting twoFA address:', error);
     return null;
   }
 };
@@ -471,7 +482,7 @@ export const revokeSession = async ({
   const bundler = new BundlerService(community);
 
   const data = getBytes(
-    sessionManagerInterface.encodeFunctionData("revoke", [signer.address])
+    sessionManagerInterface.encodeFunctionData('revoke', [signer.address])
   );
 
   try {
@@ -479,7 +490,7 @@ export const revokeSession = async ({
 
     return tx;
   } catch (error) {
-    console.error("Error revoking session:", error);
+    console.error('Error revoking session:', error);
     return null;
   }
 };
