@@ -82,6 +82,7 @@ export const parseQRFormat = (raw: string): QRFormat => {
  * - [0] address: The recipient's address or identifier (e.g., Ethereum address, username)
  * - [1] value: The transfer amount or value (can be null if not specified)
  * - [2] description: Additional message or description for the transfer (can be null if not specified)
+ * - [3] alias/ calldata
  */
 type ParseQRData = [string, string | null, string | null, string | null];
 
@@ -122,8 +123,10 @@ function parseReceiveLink(raw: string): ParseQRData {
 
   const address = params.get("address");
   const amount = params.get("amount");
+  const description = params.get("description");
+  const alias = params.get("alias");
 
-  return [address || "", amount, null, null];
+  return [address || "", amount, description, alias];
 }
 
 function parseSendtoUrl(raw: string): ParseQRData {
@@ -149,7 +152,7 @@ function parseSendtoUrl(raw: string): ParseQRData {
   const [address, alias] = sendToParam.split("@");
 
   // Return parsed data
-  return [address, amountParam, descriptionParam, null];
+  return [address, amountParam, descriptionParam, alias];
 }
 
 function parseCalldataUrl(raw: string): ParseQRData {
