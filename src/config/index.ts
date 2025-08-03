@@ -92,6 +92,7 @@ export interface ConfigPlugin {
   name: string;
   icon: string;
   url: string;
+  action?: string;
   launch_mode?: string;
   signature?: boolean;
   token_chain_id?: number;
@@ -142,15 +143,41 @@ export class CommunityConfig {
     return this.config.tokens[`${this.primaryNetwork.id}:${tokenAddress}`];
   }
 
-  getPlugin(tokenAddress: string, _chainId?: number): ConfigPlugin | undefined {
+  getPlugins(
+    tokenAddress: string,
+    _chainId?: number
+  ): ConfigPlugin[] | undefined {
     let chainId = _chainId;
     if (!chainId) {
       chainId = this.primaryNetwork.id;
     }
 
-    return this.config.plugins?.find(
+    return this.config.plugins?.filter(
       (plugin) =>
         plugin.token_address === tokenAddress &&
+        (plugin.token_chain_id ? plugin.token_chain_id === chainId : true)
+    );
+  }
+
+  getActionPlugin(
+    name: string,
+    _tokenAddress?: string,
+    _chainId?: number
+  ): ConfigPlugin | undefined {
+    let chainId = _chainId;
+    if (!chainId) {
+      chainId = this.primaryNetwork.id;
+    }
+
+    let tokenAddress = _tokenAddress;
+    if (!tokenAddress) {
+      tokenAddress = this.primaryToken.address;
+    }
+
+    return this.config.plugins?.find(
+      (plugin) =>
+        plugin.action === name &&
+        (plugin.token_address ? plugin.token_address === tokenAddress : true) &&
         (plugin.token_chain_id ? plugin.token_chain_id === chainId : true)
     );
   }
