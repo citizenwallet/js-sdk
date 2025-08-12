@@ -367,7 +367,7 @@ const safeRevokeRoleCallData = (
   );
 
 export interface BundlerOptions {
-  accountFactoryAddress?: string;
+  accountFactoryAddress?: string, smartAccountIndex?: number;
 }
 
 export class BundlerService {
@@ -403,7 +403,10 @@ export class BundlerService {
     sender: string,
     senderAccountExists = false,
     accountFactoryAddress: string,
-    callData: Uint8Array
+    callData: Uint8Array,
+    options?: {
+      smartAccountIndex?: number
+    }
   ): UserOp {
     const userop = getEmptyUserOp(sender);
 
@@ -413,11 +416,11 @@ export class BundlerService {
         this.accountType === "cw-safe"
           ? safeAccountFactoryInterface.encodeFunctionData("createAccount", [
               signerAddress,
-              BigInt(0),
+              BigInt(options?.smartAccountIndex || 0),
             ])
           : accountFactoryInterface.encodeFunctionData("createAccount", [
               signerAddress,
-              BigInt(0),
+              BigInt(options?.smartAccountIndex || 0),
             ]);
 
       userop.initCode = ethers.getBytes(
@@ -435,7 +438,7 @@ export class BundlerService {
     owner: string,
     sender: string,
     callData: Uint8Array,
-    options?: { accountFactoryAddress?: string }
+    options?: { accountFactoryAddress?: string, smartAccountIndex?: number }
   ): Promise<UserOp> {
     const { accountFactoryAddress } = options ?? {};
 
@@ -452,7 +455,8 @@ export class BundlerService {
       sender,
       exists,
       account_factory_address,
-      callData
+      callData,
+      options
     );
 
     return userop;
@@ -512,7 +516,7 @@ export class BundlerService {
     userop: UserOp,
     data?: UserOpData,
     extraData?: UserOpExtraData,
-    options?: { accountFactoryAddress?: string }
+    options?: { accountFactoryAddress?: string, smartAccountIndex?: number }
   ) {
     const { accountFactoryAddress } = options ?? {};
 
@@ -550,7 +554,7 @@ export class BundlerService {
     value?: bigint,
     userOpData?: UserOpData,
     extraData?: UserOpExtraData,
-    options?: { accountFactoryAddress?: string }
+    options?: { accountFactoryAddress?: string, smartAccountIndex?: number }
   ) {
     const { accountFactoryAddress } = options ?? {};
 
@@ -561,9 +565,7 @@ export class BundlerService {
         ? executeSafeCallData(contractAddress, value ?? BigInt(0), data)
         : executeCallData(contractAddress, value ?? BigInt(0), data);
 
-    let userop = await this.prepareUserOp(owner, sender, calldata, {
-      accountFactoryAddress,
-    });
+    let userop = await this.prepareUserOp(owner, sender, calldata, options);
 
     // get the paymaster to sign the userop
     userop = await this.paymasterSignUserOp(userop, {
@@ -592,7 +594,7 @@ export class BundlerService {
     to: string,
     amount: string,
     description?: string,
-    options?: { accountFactoryAddress?: string }
+    options?: { accountFactoryAddress?: string, smartAccountIndex?: number }
   ): Promise<string> {
     const { accountFactoryAddress } = options ?? {};
 
@@ -607,9 +609,7 @@ export class BundlerService {
 
     const owner = await signer.getAddress();
 
-    let userop = await this.prepareUserOp(owner, from, calldata, {
-      accountFactoryAddress,
-    });
+    let userop = await this.prepareUserOp(owner, from, calldata, options);
 
     // get the paymaster to sign the userop
     userop = await this.paymasterSignUserOp(userop, {
@@ -648,7 +648,7 @@ export class BundlerService {
     to: string,
     amount: string,
     description?: string,
-    options?: { accountFactoryAddress?: string }
+    options?: { accountFactoryAddress?: string, smartAccountIndex?: number }
   ): Promise<string> {
     const { accountFactoryAddress } = options ?? {};
 
@@ -663,9 +663,7 @@ export class BundlerService {
 
     const owner = await signer.getAddress();
 
-    let userop = await this.prepareUserOp(owner, from, calldata, {
-      accountFactoryAddress,
-    });
+    let userop = await this.prepareUserOp(owner, from, calldata, options);
 
     try {
       // get the paymaster to sign the userop
@@ -717,7 +715,7 @@ export class BundlerService {
     from: string,
     amount: string,
     description?: string,
-    options?: { accountFactoryAddress?: string }
+    options?: { accountFactoryAddress?: string, smartAccountIndex?: number }
   ): Promise<string> {
     const { accountFactoryAddress } = options ?? {};
 
@@ -732,9 +730,7 @@ export class BundlerService {
 
     const owner = await signer.getAddress();
 
-    let userop = await this.prepareUserOp(owner, sender, calldata, {
-      accountFactoryAddress,
-    });
+    let userop = await this.prepareUserOp(owner, sender, calldata, options);
 
     try {
       // get the paymaster to sign the userop
@@ -785,7 +781,7 @@ export class BundlerService {
     profileAccountAddress: string,
     username: string,
     ipfsHash: string,
-    options?: { accountFactoryAddress?: string }
+    options?: { accountFactoryAddress?: string, smartAccountIndex?: number }
   ): Promise<string> {
     const { accountFactoryAddress } = options ?? {};
 
@@ -812,7 +808,7 @@ export class BundlerService {
       owner,
       signerAccountAddress,
       calldata,
-      { accountFactoryAddress }
+      options
     );
 
     // get the paymaster to sign the userop
@@ -839,7 +835,7 @@ export class BundlerService {
     signer: ethers.Signer,
     signerAccountAddress: string,
     profileAccountAddress: string,
-    options?: { accountFactoryAddress?: string }
+    options?: { accountFactoryAddress?: string, smartAccountIndex?: number }
   ): Promise<string> {
     const { accountFactoryAddress } = options ?? {};
 
@@ -858,7 +854,7 @@ export class BundlerService {
       owner,
       signerAccountAddress,
       calldata,
-      { accountFactoryAddress }
+      options
     );
 
     // get the paymaster to sign the userop
@@ -903,7 +899,7 @@ export class BundlerService {
     sender: string,
     role: string,
     account: string,
-    options?: { accountFactoryAddress?: string }
+    options?: { accountFactoryAddress?: string, smartAccountIndex?: number }
   ) {
     const { accountFactoryAddress } = options ?? {};
 
@@ -915,9 +911,7 @@ export class BundlerService {
         : grantRoleCallData(token.address, role, account);
     const owner = await signer.getAddress();
 
-    let userop = await this.prepareUserOp(owner, sender, calldata, {
-      accountFactoryAddress,
-    });
+    let userop = await this.prepareUserOp(owner, sender, calldata, options);
 
     // get the paymaster to sign the userop
     userop = await this.paymasterSignUserOp(userop, {
@@ -945,7 +939,7 @@ export class BundlerService {
     sender: string,
     role: string,
     account: string,
-    options?: { accountFactoryAddress?: string }
+    options?: { accountFactoryAddress?: string, smartAccountIndex?: number }
   ) {
     const { accountFactoryAddress } = options ?? {};
 
@@ -957,9 +951,7 @@ export class BundlerService {
         : revokeRoleCallData(token.address, role, account);
     const owner = await signer.getAddress();
 
-    let userop = await this.prepareUserOp(owner, sender, calldata, {
-      accountFactoryAddress,
-    });
+    let userop = await this.prepareUserOp(owner, sender, calldata, options);
 
     // get the paymaster to sign the userop
     userop = await this.paymasterSignUserOp(userop, {
