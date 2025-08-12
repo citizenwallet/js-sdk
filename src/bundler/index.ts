@@ -367,7 +367,7 @@ const safeRevokeRoleCallData = (
   );
 
 export interface BundlerOptions {
-  accountFactoryAddress?: string, smartAccountIndex?: number;
+  accountFactoryAddress?: string;
 }
 
 export class BundlerService {
