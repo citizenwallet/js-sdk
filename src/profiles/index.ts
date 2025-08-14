@@ -16,6 +16,7 @@ export interface Profile {
   image_small: string;
   name: string;
   username: string;
+  parent?: string;
 }
 
 export interface ProfileWithTokenId extends Profile {
