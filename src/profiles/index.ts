@@ -64,9 +64,9 @@ export const getProfileFromId = async (
   ipfsDomain: string,
   config: CommunityConfig,
   id: string,
-  options?: { accountFactoryAddress?: string }
+  options?: { accountFactoryAddress?: string; fetchChild?: boolean }
 ): Promise<ProfileWithTokenId | null> => {
-  const { accountFactoryAddress } = options ?? {};
+  const { accountFactoryAddress, fetchChild = false } = options ?? {};
 
   const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
 
@@ -83,10 +83,14 @@ export const getProfileFromId = async (
 
     const profile = await downloadJsonFromIpfs<Profile>(ipfsDomain, uri);
 
-    return {
-      ...formatProfileImageLinks(`https://${ipfsDomain}`, profile),
-      token_id: id,
-    };
+    if (fetchChild || !profile.parent) {
+      return {
+        ...formatProfileImageLinks(`https://${ipfsDomain}`, profile),
+        token_id: id,
+      };
+    }
+
+    return getProfileFromAddress(ipfsDomain, config, profile.parent, options);
   } catch (error) {
     console.error("Error fetching profile:", error);
     return null;
@@ -96,11 +100,12 @@ export const getProfileFromId = async (
 export const getProfileFromAddress = async (
   ipfsDomain: string,
   config: CommunityConfig,
-  address: string
+  address: string,
+  options?: { accountFactoryAddress?: string; fetchChild?: boolean }
 ): Promise<ProfileWithTokenId | null> => {
   const id = addressToId(address);
 
-  return getProfileFromId(ipfsDomain, config, id.toString());
+  return getProfileFromId(ipfsDomain, config, id.toString(), options);
 };
 
 export const getProfileUriFromId = async (
@@ -132,8 +137,13 @@ export const getProfileFromUsername = async (
   ipfsDomain: string,
   config: CommunityConfig,
   username: string,
-  accountFactoryAddress?: string
+  options?: {
+    accountFactoryAddress?: string;
+    fetchChild?: boolean;
+  }
 ): Promise<ProfileWithTokenId | null> => {
+  const { accountFactoryAddress, fetchChild = false } = options ?? {};
+
   const rpc = new JsonRpcProvider(config.getRPCUrl(accountFactoryAddress));
 
   const contract = new Contract(
@@ -151,12 +161,16 @@ export const getProfileFromUsername = async (
 
     const profile = await downloadJsonFromIpfs<Profile>(ipfsDomain, uri);
 
-    const id = addressToId(profile.account);
+    if (fetchChild || !profile.parent) {
+      const id = addressToId(profile.account);
 
-    return {
-      ...formatProfileImageLinks(`https://${ipfsDomain}`, profile),
-      token_id: id.toString(),
-    };
+      return {
+        ...formatProfileImageLinks(`https://${ipfsDomain}`, profile),
+        token_id: id.toString(),
+      };
+    }
+
+    return getProfileFromAddress(ipfsDomain, config, profile.parent, options);
   } catch (error) {
     console.error("Error fetching profile:", error);
     return null;
