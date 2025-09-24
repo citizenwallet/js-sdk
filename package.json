@@ -18,7 +18,8 @@
         "test": "jest",
         "test:watch": "jest --watch",
         "test:coverage": "jest --coverage",
-        "manual-publish": "npm publish --access public"
+        "manual-publish": "npm publish --access public",
+        "generate-send-to-link": "tsx scripts/generate-send-to-link.ts"
     },
     "keywords": [
         "web3",
@@ -54,8 +55,10 @@
         "@types/jest": "^29.5.14",
         "@types/node": "^20.11.16",
         "@types/react": "^18.2.57",
+        "fs": "^0.0.1-security",
         "jest": "^29.7.0",
         "nock": "^13.5.1",
+        "path": "^0.12.7",
         "rimraf": "^5.0.5",
         "ts-jest": "^29.1.2",
         "tsc-watch": "^6.0.4",
