@@ -32,10 +32,9 @@ export interface ProfileMetadata {
  * But if you only provide large, then the small and medium will be the same as the large.
  */
 export interface ProfileImages {
-  small?: File;
-  medium?: File;
-  large: File;
-  fallback?: string;
+  small?: File | string;
+  medium?: File | string;
+  large: File | string;
 }
 
 const IPFS_DOMAIN = "ipfs.internal.citizenwallet.xyz";
@@ -70,8 +69,7 @@ export const upsertProfile = async (
     account
   );
 
-  const defaultCardProfileImage =
-    images?.fallback ?? DEFAULT_PROFILE_IMAGE_IPFS_HASH;
+  const defaultCardProfileImage = DEFAULT_PROFILE_IMAGE_IPFS_HASH;
 
   const profileManagerAddress = await getAccountAddress(
     community,

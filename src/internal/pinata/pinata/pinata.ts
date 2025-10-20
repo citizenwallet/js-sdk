@@ -27,9 +27,13 @@ const PINATA_UPLOADS_BASE_URL = "https://uploads.pinata.cloud";
 const PINATA_API_BASE_URL = "https://api.pinata.cloud";
 
 export const pinFileToIPFS = async (
-  file: File,
+  file: File | string,
   options: PinataOptions
 ): Promise<string | null> => {
+  if (typeof file === "string") {
+    return file; // this is a cid already, just return it
+  }
+
   const { jwt } = options;
 
   try {
