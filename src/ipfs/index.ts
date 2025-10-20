@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 export const downloadJsonFromIpfs = async <T>(
   ipfsDomain: string,
   uri: string

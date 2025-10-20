@@ -4,11 +4,9 @@ import { hexlify, toUtf8Bytes, JsonRpcProvider, Contract } from "ethers";
 import { type CommunityConfig } from "../config";
 import { downloadJsonFromIpfs } from "../ipfs";
 import profileContractAbi from "../abi/Profile.abi.json";
-import dotenv from "dotenv";
 import { addressToId, idToAddress, limitStringLength } from "./utils";
 import { PROFILE_ADMIN_ROLE } from "../utils/crypto";
 import { getRandomLetters } from "../utils/random";
-dotenv.config();
 
 export interface Profile {
   account: string;
