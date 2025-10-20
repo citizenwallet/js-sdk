@@ -35,6 +35,7 @@ export interface ProfileImages {
   small?: File;
   medium?: File;
   large: File;
+  fallback?: string;
 }
 
 const IPFS_DOMAIN = "ipfs.internal.citizenwallet.xyz";
@@ -69,7 +70,8 @@ export const upsertProfile = async (
     account
   );
 
-  const defaultCardProfileImage = DEFAULT_PROFILE_IMAGE_IPFS_HASH;
+  const defaultCardProfileImage =
+    images?.fallback ?? DEFAULT_PROFILE_IMAGE_IPFS_HASH;
 
   const profileManagerAddress = await getAccountAddress(
     community,
