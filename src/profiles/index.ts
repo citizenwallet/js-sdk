@@ -1,3 +1,5 @@
+export * from "./upsert";
+
 import { hexlify, toUtf8Bytes, JsonRpcProvider, Contract } from "ethers";
 import { type CommunityConfig } from "../config";
 import { downloadJsonFromIpfs } from "../ipfs";
