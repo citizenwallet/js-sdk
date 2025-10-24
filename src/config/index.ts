@@ -36,6 +36,7 @@ export interface ConfigToken {
   decimals: number;
   chain_id: number;
   logo?: string;
+  project?: string;
 }
 
 export interface ConfigScan {
