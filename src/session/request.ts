@@ -37,7 +37,7 @@ export class InvalidChallengeException extends Error {
  * @returns {Promise<SessionRequestResult | null>} Object containing transaction hash and request hash, or null on failure
  * @throws {InvalidChallengeException} If the request is rejected as a bad request
  */
-export const request = async (
+export const sendSessionRequest = async (
   url: string,
   community: CommunityConfig,
   privateKey: Wallet,
@@ -135,7 +135,7 @@ export const request = async (
  * @param {number | string} challenge - The challenge number received from the session request
  * @returns {Promise<string | null>} The transaction hash of the confirmation, or null on failure
  */
-export const confirm = async (
+export const confirmSessionRequest = async (
   url: string,
   community: CommunityConfig,
   privateKey: Wallet,
