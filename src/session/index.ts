@@ -14,8 +14,6 @@ import { BundlerService } from "../bundler";
 import sessionManagerModuleJson from "../abi/SessionManagerModule.json";
 import twoFAFactoryJson from "../abi/TwoFAFactory.json";
 
-export * from "./request";
-
 const sessionManagerInterface = new Interface(sessionManagerModuleJson.abi);
 const twoFAFactoryInterface = new Interface(twoFAFactoryJson.abi);
 
