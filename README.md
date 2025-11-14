@@ -27,6 +27,160 @@ To install the SDK, run the following command in your terminal:
 npm install --save @citizenwallet/sdk
 ```
 
+# Getting Started
+
+## Understanding CommunityConfig
+
+The `CommunityConfig` class is the foundation of the SDK. Almost all SDK functions require a `CommunityConfig` instance as their first parameter. This config object contains all the information about a community, including blockchain networks, contract addresses, tokens, and more.
+
+## Loading Configuration
+
+### Step 1: Fetch the Configuration JSON
+
+Community configurations are typically hosted as JSON files. You can fetch them from a URL:
+
+```typescript
+import { CommunityConfig, type Config } from "@citizenwallet/sdk";
+
+async function loadConfig(configUrl: string): Promise<CommunityConfig> {
+  const response = await fetch(configUrl);
+  const configData: Config = await response.json();
+  return new CommunityConfig(configData);
+}
+
+// Example: Load config from a community's domain
+const config = await loadConfig("https://example.com/config/community.json");
+```
+
+### Step 2: Use CommunityConfig in SDK Functions
+
+Once you have a `CommunityConfig` instance, you can use it with any SDK function:
+
+```typescript
+import { 
+  CommunityConfig, 
+  getAccountAddress, 
+  getAccountBalance,
+  BundlerService,
+  LogsService
+} from "@citizenwallet/sdk";
+
+// Initialize config
+const config = await loadConfig("https://example.com/config/community.json");
+
+// Use config in SDK functions
+const accountAddress = await getAccountAddress(config, userAddress);
+const balance = await getAccountBalance(config, accountAddress);
+
+// Create service instances
+const bundler = new BundlerService(config);
+const logsService = new LogsService(config);
+```
+
+## Configuration Structure
+
+The configuration JSON follows a specific structure. Here's a minimal example:
+
+```json
+{
+  "community": {
+    "name": "Community Name",
+    "alias": "community-alias",
+    "primary_token": {
+      "address": "0x...",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x...",
+      "chain_id": 42220
+    }
+  },
+  "tokens": {
+    "42220:0x...": {
+      "standard": "erc20",
+      "name": "Token Name",
+      "symbol": "TKN",
+      "decimals": 18,
+      "address": "0x...",
+      "chain_id": 42220
+    }
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://...",
+        "ws_url": "wss://..."
+      }
+    }
+  },
+  "accounts": {
+    "42220:0x...": {
+      "chain_id": 42220,
+      "entrypoint_address": "0x...",
+      "paymaster_address": "0x...",
+      "account_factory_address": "0x...",
+      "paymaster_type": "cw"
+    }
+  },
+  "scan": {
+    "url": "https://explorer.example.com",
+    "name": "Explorer Name"
+  },
+  "ipfs": {
+    "url": "https://ipfs.example.com"
+  },
+  "config_location": "https://example.com/config/community.json",
+  "version": 4
+}
+```
+
+See the `community.json` file in this repository for a complete example.
+
+## Quick Example
+
+Here's a complete example showing how to use the SDK:
+
+```typescript
+import { 
+  CommunityConfig, 
+  getAccountAddress,
+  getAccountBalance,
+  BundlerService 
+} from "@citizenwallet/sdk";
+import { Wallet } from "ethers";
+
+// Load configuration
+async function main() {
+  const response = await fetch("https://example.com/config/community.json");
+  const configData = await response.json();
+  const config = new CommunityConfig(configData);
+  
+  // Get smart account address for a user
+  const userAddress = "0x1234...";
+  const accountAddress = await getAccountAddress(config, userAddress);
+  
+  // Check account balance
+  const balance = await getAccountBalance(config, accountAddress);
+  
+  // Send tokens using bundler
+  const signer = new Wallet(privateKey);
+  const bundler = new BundlerService(config);
+  const txHash = await bundler.sendERC20Token(
+    signer,
+    config.primaryToken.address,
+    accountAddress,
+    recipientAddress,
+    amount,
+    "Transfer description"
+  );
+  
+  console.log("Transaction hash:", txHash);
+}
+```
+
+**Important**: Always instantiate `CommunityConfig` before using any SDK functions. The config is required for all operations.
+
 # API Reference
 
 ## Configuration
