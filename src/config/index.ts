@@ -141,6 +141,26 @@ export class CommunityConfig {
     return this.config.tokens[`${this.primaryNetwork.id}:${tokenAddress}`];
   }
 
+  /**
+   * Gets a token configuration by project name.
+   * Searches through all tokens to find one with a matching project name.
+   * If no token is found for the given project name, returns the primary token.
+   *
+   * @param projectName - The name of the project to find the token for
+   * @returns The token configuration for the project, or the primary token if not found
+   */
+  getProjectToken(projectName: string): ConfigToken {
+    const token = Object.values(this.config.tokens).find(
+      (token) => token.project === projectName
+    );
+
+    if (!token) {
+      return this.primaryToken;
+    }
+
+    return token;
+  }
+
   getPlugins(
     tokenAddress: string,
     _chainId?: number

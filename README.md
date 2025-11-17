@@ -221,6 +221,9 @@ const sessionConfig = config.primarySessionConfig;
 
 // Access card configuration
 const cardConfig = config.primaryCardConfig;
+
+// Get token by project name
+const projectToken = config.getProjectToken("project-name");
 ```
 
 ## Constants

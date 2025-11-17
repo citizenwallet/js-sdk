@@ -175,6 +175,9 @@ const rpcUrl = config.getRPCUrl(accountFactoryAddress);
 // Get token by address
 const token = config.getToken(tokenAddress);
 
+// Get token by project name
+const projectToken = config.getProjectToken("project-name");
+
 // Get account config
 const accountConfig = config.getAccountConfig(accountFactoryAddress);
 
