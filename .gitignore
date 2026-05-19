@@ -13,7 +13,6 @@ dist/
 .DS_Store
 Thumbs.db
 
-.env
 
 cache
 
@@ -21,3 +20,4 @@ artifacts
 
 # jest
 coverage/
+config.bat
